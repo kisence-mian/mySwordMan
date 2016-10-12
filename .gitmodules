@@ -1,0 +1,3 @@
+[submodule "Assets/Script/Core/MyUnityFrameWork"]
+	path = Assets/Script/Core/MyUnityFrameWork
+	url = git@github.com:GaoKaiHaHa/MyUnityFrameWork.git
