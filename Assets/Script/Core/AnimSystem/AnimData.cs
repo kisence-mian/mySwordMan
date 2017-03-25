@@ -4,21 +4,25 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
 
-public class AnimData
+public class AnimData : HeapObjectBase
 {
     #region 参数
 
     //基本变量
     public GameObject m_animGameObejct;
     public AnimType m_animType;
-    public InteType m_interpolationType = InteType.Default ;
-    public PathType m_pathType = PathType.Line;
-    public RepeatType m_playType = RepeatType.Once;
+    public InterpType m_interpolationType = InterpType.Default ;
+    public PathType m_pathType            = PathType.Line;
+    public RepeatType m_repeatType        = RepeatType.Once;
+
+    public bool m_ignoreTimeScale = false;
 
     //进度控制变量
-    public bool m_isDone = false;
+    public float m_delayTime   = 0;
+    public bool  m_isDone      = false;
     public float m_currentTime = 0;
-    public float m_totalTime = 0;
+    public float m_totalTime   = 0;
+    public int   m_repeatCount = -1;
 
     //V3
     public Vector3 m_fromV3;
@@ -35,17 +39,22 @@ public class AnimData
     //Color
     public Color m_fromColor;
     public Color m_toColor;
+    List<Color> m_oldColor = new List<Color>();
 
     //动画回调
     public object[] m_parameter;
     public AnimCallBack m_callBack;
     
+    //闪烁
+    public float m_space = 0;
+    float m_timer = 0;
+
     //其他设置
     public bool m_isChild = false;
     public bool m_isLocal = false;
 
     //控制点
-    public Vector3[] m_v3Contral = null; //二阶取第一个用，三阶取前两个
+    public Vector3[] m_v3Contral  = null; //二阶取第一个用，三阶取前两个
     public float[] m_floatContral = null;
 
     //自定义函数
@@ -63,7 +72,28 @@ public class AnimData
 
     public void executeUpdate()
     {
-        m_currentTime += Time.deltaTime;
+        if (m_delayTime <= 0)
+        {
+            if (m_ignoreTimeScale)
+            {
+                m_currentTime += Time.unscaledDeltaTime;
+            }
+            else
+            {
+                m_currentTime += Time.deltaTime;
+            }
+        }
+        else
+        {
+            if (m_ignoreTimeScale)
+            {
+                m_delayTime -= Time.unscaledDeltaTime;
+            }
+            else
+            {
+                m_delayTime -= Time.deltaTime;
+            }
+        }
 
         if (m_currentTime > m_totalTime)
         {
@@ -73,19 +103,25 @@ public class AnimData
 
         switch (m_animType)
         {
+            case AnimType.UGUI_Color: UguiColor(); break;
             case AnimType.UGUI_Alpha: UguiAlpha(); break;
             case AnimType.UGUI_AnchoredPosition: UguiPosition(); break;
             case AnimType.UGUI_SizeDetal: SizeDelta(); break;
 
-
             case AnimType.Position: Position(); break;
             case AnimType.LocalPosition: LocalPosition(); break;
             case AnimType.LocalScale: LocalScale(); break;
+            case AnimType.LocalRotate: LocalRotate(); break;
+            case AnimType.Rotate: Rotate(); break;
 
+            case AnimType.Color: UpdateColor(); break;
+            case AnimType.Alpha: UpdateAlpha(); break;
 
             case AnimType.Custom_Vector3: CustomMethodVector3(); break;
             case AnimType.Custom_Vector2: CustomMethodVector2(); break;
             case AnimType.Custom_Float:   CustomMethodFloat(); break;
+
+            case AnimType.Blink: Blink(); break;
         }
     }
 
@@ -108,7 +144,7 @@ public class AnimData
     //动画循环逻辑
     public bool AnimReplayLogic()
     {
-        switch (m_playType)
+        switch (m_repeatType)
         {
             case RepeatType.Once:
                 return false;
@@ -116,8 +152,7 @@ public class AnimData
             case RepeatType.Loop:
                 m_isDone = false;
                 m_currentTime = 0;
-                return true;
-
+                break;
             case RepeatType.PingPang:
 
                 ExchangeV2();
@@ -125,10 +160,18 @@ public class AnimData
                 ExchangePos();
                 m_isDone = false;
                 m_currentTime = 0;
-                return true;
+                break;
         }
 
-        return false;
+        if (m_repeatCount == -1)
+        {
+            return true;
+        }
+        else
+        {
+            m_repeatCount--;
+            return  (m_repeatCount > 0);
+        }
     }
 
     #region 循环逻辑
@@ -142,7 +185,6 @@ public class AnimData
     }
     public void ExchangePos()
     {
-
         Vector3 Vtmp = m_fromV3;
         m_fromV3 = m_toV3;
         m_toV3 = Vtmp;
@@ -165,18 +207,40 @@ public class AnimData
     {
         switch (m_animType)
         {
+            case AnimType.UGUI_Color: UguiColorInit(m_isChild); break;
             case AnimType.UGUI_Alpha: UguiAlphaInit(m_isChild); break;
             case AnimType.UGUI_AnchoredPosition: UguiPositionInit(); break;
             case AnimType.UGUI_SizeDetal: UguiPositionInit(); break;
+
+            case AnimType.Color: ColorInit(m_isChild); break;
+            case AnimType.Alpha: AlphaInit(m_isChild); break;
+
             case AnimType.Position: TransfromInit(); break;
             case AnimType.LocalPosition: TransfromInit(); break;
             case AnimType.LocalScale: TransfromInit(); break;
+            case AnimType.LocalRotate: TransfromInit(); break;
+            case AnimType.Rotate: TransfromInit(); break;
         }
 
         if (m_pathType != PathType.Line)
         {
             BezierInit();
         }
+    }
+
+    public override void OnRelease()
+    {
+        m_ignoreTimeScale = false;
+
+        m_delayTime   = 0;
+        m_isDone      = false;
+        m_currentTime = 0;
+        m_totalTime   = 0;
+        m_repeatCount = -1;
+
+        m_pathType = PathType.Line;
+        m_v3Contral = null;
+        m_floatContral = null;
     }
 
     #endregion
@@ -260,13 +324,7 @@ public class AnimData
     /// </summary>
     Vector3 GetBezierInterpolationV3(Vector3 oldValue, Vector3 aimValue)
     {
-        Vector3 result = new Vector3(
-            GetInterpolation(oldValue.x, aimValue.x),
-            0,
-            0
-        );
-        float n_finishingRate = (result.x - oldValue.x) / (aimValue.x - oldValue.x);
-        n_finishingRate = Mathf.Clamp(n_finishingRate, -1, 2);
+        float n_finishingRate = m_currentTime / m_totalTime;
 
         switch (m_pathType)
         {
@@ -291,23 +349,27 @@ public class AnimData
     /// </summary>
     Vector3 Bezier3(Vector3 startPos, Vector3 endPos, float n_time, Vector3[] t_ControlPoint)
     {
-        return (1 - n_time) * (1 - n_time) * (1 - n_time) * startPos + 3 * (1 - n_time) * (1 - n_time) * n_time * t_ControlPoint[0] + 3 * (1 - n_time) * n_time * n_time * t_ControlPoint[1] + n_time * n_time * n_time * endPos;
+        return (1 - n_time) * (1 - n_time) * (1 - n_time) * startPos 
+            + 3 * (1 - n_time) * (1 - n_time) * n_time * t_ControlPoint[0] 
+            + 3 * (1 - n_time) * n_time * n_time * t_ControlPoint[1] 
+            + n_time * n_time * n_time * endPos;
     }
 
     #endregion
 
     #region UGUI
 
-    #region UGUI_alpha
+    #region UGUI_Color
 
     List<Image> m_animObjectList_Image = new List<Image>();
-    List<Text> m_animObjectList_Text = new List<Text>();
+    List<Text>  m_animObjectList_Text = new List<Text>();
 
-    List<Color> m_oldColor = new List<Color>();
+    #region ALpha
 
     public void UguiAlphaInit(bool isChild)
     {
         m_animObjectList_Image = new List<Image>();
+        m_animObjectList_Text = new List<Text>();
         m_oldColor = new List<Color>();
 
         if (isChild)
@@ -336,21 +398,32 @@ public class AnimData
         }
         else
         {
-            m_animObjectList_Image.Add(m_animGameObejct.GetComponent<Image>());
-            m_oldColor.Add(m_animGameObejct.GetComponent<Image>().color);
+            Image image = m_animGameObejct.GetComponent<Image>();
+            Text text = m_animGameObejct.GetComponent<Text>();
+            if (image != null)
+            {
+                m_animObjectList_Image.Add(image);
+                m_oldColor.Add(image.color);
+            }
+            if (text != null)
+            {
+                m_animObjectList_Text.Add(text);
+                m_oldColor.Add(text.color);
+            }
         }
 
-        setUGUIAlpha(m_fromFloat);
+        SetUGUIAlpha(m_fromFloat);
     }
 
     void UguiAlpha()
     {
-        setUGUIAlpha(GetInterpolation(m_fromFloat, m_toFloat));
+        SetUGUIAlpha(GetInterpolation(m_fromFloat, m_toFloat));
     }
 
-    public void setUGUIAlpha(float a)
+    Color colTmp = new Color();
+    public void SetUGUIAlpha(float a)
     {
-        Color newColor = new Color();
+        Color newColor = colTmp;
 
         int index = 0;
         for (int i = 0; i < m_animObjectList_Image.Count; i++)
@@ -372,8 +445,75 @@ public class AnimData
         }
     }
 
+    #endregion
+
+    #region Color
+
+    void UguiColor()
+    {
+        SetUGUIColor(GetInterpolationColor(m_fromColor, m_toColor));
+    }
+
+    public void UguiColorInit(bool isChild)
+    {
+        m_animObjectList_Image = new List<Image>();
+
+        if (isChild)
+        {
+            Image[] images = m_animGameObejct.GetComponentsInChildren<Image>();
+            for (int i = 0; i < images.Length; i++)
+            {
+                if (images[i].transform.GetComponent<Mask>() == null)
+                {
+                    m_animObjectList_Image.Add(images[i]);
+                }
+                else
+                {
+                    //Debug.LogError("name:" + images[i].gameObject.name);
+                }
+            }
+            Text[] texts = m_animGameObejct.GetComponentsInChildren<Text>();
+
+            for (int i = 0; i < texts.Length; i++)
+            {
+                m_animObjectList_Text.Add(texts[i]);
+            }
+        }
+        else
+        {
+            Image image = m_animGameObejct.GetComponent<Image>();
+            Text text = m_animGameObejct.GetComponent<Text>();
+            if (image != null)
+            {
+                m_animObjectList_Image.Add(image);
+            }
+            if(text != null)
+            {
+                m_animObjectList_Text.Add(text);
+            }
+        }
+        SetUGUIColor(m_fromColor);
+    }
+
+    void SetUGUIColor(Color color)
+    {
+        for (int i = 0; i < m_animObjectList_Image.Count; i++)
+        {
+            m_animObjectList_Image[i].color = color;
+        }
+
+        for (int i = 0; i < m_animObjectList_Text.Count; i++)
+        {
+            m_animObjectList_Text[i].color = color;
+        }
+    }
 
 
+    #endregion
+
+    #endregion
+
+    #region UGUI_SizeDelta
     void SizeDelta()
     {
         if (m_rectRransform == null)
@@ -386,7 +526,7 @@ public class AnimData
 
     #endregion
 
-    #region UGUI_position
+    #region UGUI_Position
 
     public void UguiPositionInit()
     {
@@ -399,6 +539,7 @@ public class AnimData
     }
 
     #endregion
+
     #endregion
 
     #region Transfrom
@@ -418,6 +559,16 @@ public class AnimData
         m_transform.localPosition = GetInterpolationV3(m_fromV3, m_toV3);
     }
 
+    void LocalRotate()
+    {
+        m_transform.localEulerAngles = GetInterpolationV3(m_fromV3, m_toV3);
+    }
+
+    void Rotate()
+    {
+        m_transform.eulerAngles = GetInterpolationV3(m_fromV3, m_toV3);
+    }
+
     void LocalScale()
     {
         m_transform.localScale = GetInterpolationV3(m_fromV3, m_toV3);
@@ -426,6 +577,114 @@ public class AnimData
     #endregion
 
     #region Color
+
+    List<SpriteRenderer> m_animObjectList_Sprite = new List<SpriteRenderer>();
+
+    #region ALPHA
+
+    public void AlphaInit(bool isChild)
+    {
+        if (isChild)
+        {
+            SpriteRenderer[] images = m_animGameObejct.GetComponentsInChildren<SpriteRenderer>();
+            for (int i = 0; i < images.Length; i++)
+            {
+                m_animObjectList_Sprite.Add(images[i]);
+                m_oldColor.Add(images[i].color);
+            }
+        }
+        else
+        {
+            SpriteRenderer image = m_animGameObejct.GetComponent<SpriteRenderer>();
+            if (image != null)
+            {
+                m_animObjectList_Sprite.Add(image);
+                m_oldColor.Add(image.color);
+            }
+        }
+
+        SetAlpha(m_fromFloat);
+    }
+
+    void UpdateAlpha()
+    {
+        SetAlpha(GetInterpolation(m_fromFloat, m_toFloat));
+    }
+
+    public void SetAlpha(float a)
+    {
+        Color newColor = new Color();
+
+        int index = 0;
+        for (int i = 0; i < m_animObjectList_Sprite.Count; i++)
+        {
+            newColor = m_oldColor[index];
+            newColor.a = a;
+            m_animObjectList_Sprite[i].color = newColor;
+
+            index++;
+        }
+    }
+
+    #endregion
+
+    #region Color
+
+    public void ColorInit(bool isChild)
+    {
+        if (isChild)
+        {
+            SpriteRenderer[] images = m_animGameObejct.GetComponentsInChildren<SpriteRenderer>();
+
+            for (int i = 0; i < images.Length; i++)
+            {
+                m_animObjectList_Sprite.Add(images[i]);
+            }
+        }
+        else
+        {
+            SpriteRenderer image = m_animGameObejct.GetComponent<SpriteRenderer>();
+            if (image != null)
+            {
+                m_animObjectList_Sprite.Add(image);
+            }
+        }
+
+        SetColor(m_fromColor);
+    }
+
+    void UpdateColor()
+    {
+        SetColor(GetInterpolationColor(m_fromColor, m_toColor));
+    }
+
+    public void SetColor(Color color)
+    {
+        for (int i = 0; i < m_animObjectList_Sprite.Count; i++)
+        {
+            m_animObjectList_Sprite[i].color = color;
+        }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region 闪烁
+
+    void Blink()
+    {
+        if (m_timer < 0)
+        {
+            m_timer = m_space;
+            m_animGameObejct.SetActive(!m_animGameObejct.activeSelf);
+        }
+        else
+        {
+            m_timer -= Time.deltaTime;
+        }
+ 
+    }
 
     #endregion
 
@@ -437,34 +696,34 @@ public class AnimData
     {
         switch (m_interpolationType)
         {
-            case InteType.Default:
-            case InteType.Linear: return Mathf.Lerp(oldValue, aimValue, m_currentTime / m_totalTime);
-            case InteType.InBack: return InBack(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutBack: return OutBack(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InOutBack: return InOutBack(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutInBack: return OutInBack(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InQuad: return InQuad(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutQuad: return OutQuad(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InoutQuad: return InoutQuad(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InCubic: return InCubic(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutCubic: return OutCubic(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InoutCubic: return InoutCubic(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InQuart: return InQuart(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutQuart: return OutQuart(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InOutQuart: return InOutQuart(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutInQuart: return OutInQuart(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InQuint: return InQuint(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutQuint: return OutQuint(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InOutQuint: return InOutQuint(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutInQuint: return OutInQuint(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InSine: return InSine(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutSine: return OutSine(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InOutSine: return InOutSine(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutInSine: return OutInSine(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InExpo: return InExpo(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutExpo: return OutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.InOutExpo: return InOutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
-            case InteType.OutInExpo: return OutInExpo(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.Default:
+            case InterpType.Linear: return Mathf.Lerp(oldValue, aimValue, m_currentTime / m_totalTime);
+            case InterpType.InBack: return InBack(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutBack: return OutBack(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutBack: return InOutBack(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInBack: return OutInBack(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InQuad: return InQuad(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutQuad: return OutQuad(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InoutQuad: return InoutQuad(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InCubic: return InCubic(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutCubic: return OutCubic(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InoutCubic: return InoutCubic(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InQuart: return InQuart(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutQuart: return OutQuart(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutQuart: return InOutQuart(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInQuart: return OutInQuart(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InQuint: return InQuint(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutQuint: return OutQuint(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutQuint: return InOutQuint(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInQuint: return OutInQuint(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InSine: return InSine(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutSine: return OutSine(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutSine: return InOutSine(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInSine: return OutInSine(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InExpo: return InExpo(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutExpo: return OutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutExpo: return InOutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInExpo: return OutInExpo(oldValue, aimValue, m_currentTime, m_totalTime);
         }
 
         return 0;
@@ -487,6 +746,17 @@ public class AnimData
             result = GetBezierInterpolationV3(oldValue, aimValue);
         }
 
+        return result;
+    }
+
+    Color GetInterpolationColor(Color oldValue, Color aimValue)
+    {
+        
+
+        Color result = new Color( GetInterpolation(oldValue.r,aimValue.r), 
+                                  GetInterpolation(oldValue.g,aimValue.g), 
+                                  GetInterpolation(oldValue.b,aimValue.b), 
+                                  GetInterpolation(oldValue.a,aimValue.a));
         return result;
     }
 

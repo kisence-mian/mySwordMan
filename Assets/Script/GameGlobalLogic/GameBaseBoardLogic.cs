@@ -46,6 +46,27 @@ public class GameBaseBoardLogic : IApplicationGlobalLogic
 
         Vector3 lastPos = new Vector3(0, 1056, 0) * (currentPage); ;
 
-        AnimSystem.UguiMove(s_baseBoard.m_rsr.content.gameObject, lastPos, 0.5f);
+        AnimSystem.UguiMove(s_baseBoard.m_rsr.content.gameObject,null, lastPos, 0.5f);
     }
+
+    public void SetPress(int index,bool status)
+    {
+        if(GetItem(index) == null)
+        {
+            return;
+        }
+
+        AnimSystem.StopAnim(GetItem(index).gameObject);
+
+        if (status)
+        {
+            AnimSystem.UguiColor(GetItem(index).gameObject, Color.white, Color.yellow, 0.5f);
+        }
+        else
+        {
+            AnimSystem.UguiColor(GetItem(index).gameObject, Color.yellow, Color.white, 0.5f);
+        }
+    }
+
+
 }

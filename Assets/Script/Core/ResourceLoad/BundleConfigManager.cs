@@ -3,71 +3,168 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public static class BundleConfigManager 
+public static class ResourcesConfigManager 
 {
-    public static string configFileName = "BundleConfig";
+    public const string c_ManifestFileName = "ResourcesManifest";
 
-    public static string key_relyBundle   = "relyBundles";
-    public static string key_bundles      = "AssetsBundles";
 
-    static Dictionary<string, BundleConfig> relyBundleConfigs;
-    static Dictionary<string, BundleConfig> bundleConfigs ;
+
+    public const string c_relyBundleKey = "relyBundles";
+    public const string c_bundlesKey = "AssetsBundles";
+
+    public static Dictionary<string, ResourcesConfig> m_relyBundleConfigs;
+    public static Dictionary<string, ResourcesConfig> m_bundleConfigs ;
 
     public static void Initialize()
     {
-        Dictionary<string, object> data = ConfigManager.GetData(configFileName);
+        ResourcesConfigStruct result = GetResourcesConfig();
 
-        if (data == null)
-        {
-            throw new Exception("BundleConfigManager Initialize Exception: " + configFileName + "file is not exits");
-        }
-
-        relyBundleConfigs = JsonTool.Json2Dictionary<BundleConfig>(data[key_relyBundle].ToString());
-        bundleConfigs     = JsonTool.Json2Dictionary<BundleConfig>(data[key_bundles   ].ToString());
+        m_relyBundleConfigs = result.relyList;
+        m_bundleConfigs = result.bundleList;
     }
 
-    public static BundleConfig GetBundleConfig(string bundleName)
+    public static ResourcesConfig GetBundleConfig(string bundleName)
     {
-        if (bundleConfigs == null)
+        if (m_bundleConfigs == null)
         {
-            throw new Exception("BundleConfigManager GetBundleConfig : bundleConfigs is null  do you Initialize?");
+            throw new Exception("RecourcesConfigManager GetBundleConfig : bundleConfigs is null  do you Initialize?");
         }
 
-        if (bundleConfigs.ContainsKey(bundleName))
+        if (m_bundleConfigs.ContainsKey(bundleName))
         {
-            return bundleConfigs[bundleName];
+            return m_bundleConfigs[bundleName];
         }
         else
         {
-            throw new Exception("BundleConfigManager GetBundleConfig : Dont find " + bundleName + " please check BundleConfig!");
+            throw new Exception("RecourcesConfigManager GetBundleConfig : Dont find ->" + bundleName + "<- please check BundleConfig!");
         }
     }
 
-    public static BundleConfig GetRelyBundleConfig(string bundleName)
+    public static ResourcesConfig GetRelyBundleConfig(string bundleName)
     {
-        if (relyBundleConfigs == null)
+        if (m_relyBundleConfigs == null)
         {
-            throw new Exception("BundleConfigManager GetRelyBundleConfig Exception: relyBundleConfigs is null do you Initialize?");
+            throw new Exception("ResourcesConfigManager GetRelyBundleConfig Exception: relyBundleConfigs is null do you Initialize?");
         }
 
-        if (relyBundleConfigs.ContainsKey(bundleName))
+        if (m_relyBundleConfigs.ContainsKey(bundleName))
         {
-            return relyBundleConfigs[bundleName];
+            return m_relyBundleConfigs[bundleName];
         }
         else
         {
-            throw new Exception("BundleConfigManager GetRelyBundleConfig Exception: Dont find " + bundleName + " please check BundleConfig!");
+            throw new Exception("ResourcesConfigManager GetRelyBundleConfig Exception: Dont find ->" + bundleName + "<- please check BundleConfig!");
         }
+    }
+
+    //资源路径数据不依赖任何其他数据
+    public static ResourcesConfigStruct GetResourcesConfig()
+    {
+        string dataJson = "";
+
+        dataJson = ReadResourceConfigContent();
+
+        if (dataJson == "")
+        {
+            throw new Exception("ResourcesConfig not find " + c_ManifestFileName);
+        }
+        else
+        {
+            return AnalysisResourcesConfig2Struct(dataJson);
+        }
+    }
+
+
+
+    public static string ReadResourceConfigContent()
+    {
+        string dataJson = "";
+
+        if (ResourceManager.m_gameLoadType == ResLoadLocation.Resource)
+        {
+            dataJson = ResourceIOTool.ReadStringByResource(
+                c_ManifestFileName + "." + ConfigManager.c_expandName);
+        }
+        else
+        {
+            ResLoadLocation type = ResLoadLocation.Streaming;
+
+            if (RecordManager.GetData(HotUpdateManager.c_HotUpdateRecordName).GetRecord(HotUpdateManager.c_useHotUpdateRecordKey, false))
+            {
+                type = ResLoadLocation.Persistent;
+            }
+
+            dataJson = ResourceIOTool.ReadStringByFile(
+                PathTool.GetAbsolutePath(
+                     type,
+                     c_ManifestFileName + "." + ConfigManager.c_expandName));
+        }
+
+        return dataJson;
+    }
+
+    public static ResourcesConfigStruct AnalysisResourcesConfig2Struct(string content)
+    {
+        if (content == null || content =="")
+        {
+            throw new Exception("ResourcesConfigcontent is null ! ");
+        }
+
+        ResourcesConfigStruct result = new ResourcesConfigStruct();
+
+        Dictionary<string, object> data = (Dictionary<string, object>)MiniJSON.Json.Deserialize(content);
+
+        Dictionary<string, object> gameRelyBundles = (Dictionary<string, object>)data[c_relyBundleKey];
+        Dictionary<string, object> gameAssetsBundles = (Dictionary<string, object>)data[c_bundlesKey];
+
+        result.relyList = new Dictionary<string, ResourcesConfig>();
+        result.bundleList = new Dictionary<string, ResourcesConfig>();
+        foreach (object item in gameRelyBundles.Values)
+        {
+            Dictionary<string, object> tmp = (Dictionary<string, object>)item;
+
+            ResourcesConfig config = new ResourcesConfig();
+            config.name = (string)tmp["name"];
+            config.path = (string)tmp["path"];
+            config.relyPackages = ((string)tmp["relyPackages"]).Split('|');
+            config.md5 = (string)tmp["md5"];
+
+            result.relyList.Add(config.name,config);
+        }
+
+        foreach (object item in gameAssetsBundles.Values)
+        {
+            Dictionary<string, object> tmp = (Dictionary<string, object>)item;
+
+            ResourcesConfig config = new ResourcesConfig();
+            config.name = (string)tmp["name"];
+            config.path = (string)tmp["path"];
+            config.relyPackages = ((string)tmp["relyPackages"]).Split('|');
+            config.md5 = (string)tmp["md5"];
+
+            result.bundleList.Add(config.name,config);
+        }
+
+        return result;
+    }
+
+    public static string SerializeResourcesConfig()
+    {
+        return "";
     }
 }
 
-public class BundleConfig
+public class ResourcesConfig
 {
     public string name;               //名称
     public string path;               //加载相对路径
     public string[] relyPackages;     //依赖包
     public string md5;                //md5
-    //[System.NonSerialized]
-    public ResLoadType loadType;      //加载类型
+}
+
+public class ResourcesConfigStruct
+{
+    public Dictionary<string,ResourcesConfig> relyList;
+    public Dictionary<string, ResourcesConfig> bundleList;
 }
 

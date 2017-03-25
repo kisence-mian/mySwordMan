@@ -1,85 +1,103 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using MiniJSON;
 using System.Text;
+using System;
+using LuaInterface;
 
 /// <summary>
-/// 配置管理器，可读可写，可同步，有默认值
-/// 不通过ResourceManager加载,也不受热更新影响
+/// 配置管理器，只读
 /// </summary>
 public static class ConfigManager 
 {
-    public const string directoryName = "Config";
+    public const string c_directoryName = "Config";
+    public const string c_expandName    = "json";
 
-    public static Dictionary<string, object> GetData(string ConfigName)
+    /// <summary>
+    /// 配置缓存
+    /// </summary>
+    static Dictionary<string, Dictionary<string, SingleField>> s_configCatch = new Dictionary<string,Dictionary<string, SingleField>>();
+
+    public static bool GetIsExistConfig(string ConfigName)
     {
         string dataJson = "";
 
-        if (ResourceManager.gameLoadType != ResLoadType.Resource)
-        {
-            dataJson = ResourceIOTool.ReadStringByFile(GetAbsolutePath(ConfigName));
-        }
-        else
-        {
-            dataJson = ResourceIOTool.ReadStringByResource(GetRelativelyPath(ConfigName));
-        }
+        #if UNITY_EDITOR
+            dataJson = ResourceIOTool.ReadStringByResource(
+                PathTool.GetRelativelyPath(c_directoryName,
+                                            ConfigName,
+                                            c_expandName));
+        #else
+             dataJson = ResourceManager.ReadTextFile(ConfigName);
+        #endif
 
         if (dataJson == "")
         {
-            Debug.Log(ConfigName + " dont find!");
-            return new Dictionary<string,object>();
+            return false;
         }
         else
         {
-            return Json.Deserialize(dataJson) as Dictionary<string, object>;
+            return true;
         }
     }
 
-    public static void SaveData(string ConfigName, Dictionary<string, object> data)
+    public static Dictionary<string, SingleField> GetData(string ConfigName)
     {
-        ResourceIOTool.WriteStringByFile(GetAbsolutePath(ConfigName), Json.Serialize(data));
+        if (s_configCatch.ContainsKey(ConfigName))
+        {
+            return s_configCatch[ConfigName];
+        }
+
+        string dataJson = "";
+
+        #if UNITY_EDITOR
+                dataJson = ResourceIOTool.ReadStringByResource( 
+                    PathTool.GetRelativelyPath(c_directoryName,
+                                                ConfigName,
+                                                c_expandName));
+        #else
+                dataJson = ResourceManager.ReadTextFile(ConfigName);
+        #endif
+
+        if (dataJson == "")
+        {
+            throw new Exception("ConfigManager GetData not find " + ConfigName);
+        }
+        else
+        {
+            Dictionary<string, SingleField> config = JsonTool.Json2Dictionary<SingleField>(dataJson);
+
+            s_configCatch.Add(ConfigName, config);
+            return config;
+        }
     }
 
-    //获取的是绝对路径
-    static string GetAbsolutePath(string ConfigName)
+    public static void CleanCatch()
     {
-        StringBuilder builder = new StringBuilder();
-
-#if UNITY_EDITOR
-
-        builder.Append(Application.dataPath);
-        builder.Append("/Resources");
-#else
-        builder.Append(Application.persistentDataPath);
-#endif
-        builder.Append("/");
-        builder.Append(GetRelativelyPath(ConfigName));
-
-        return builder.ToString();
-    }
-
-    //获取相对路径
-    static string GetRelativelyPath(string ConfigName)
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.Append(directoryName);
-        builder.Append("/");
-        builder.Append(ConfigName);
-        builder.Append(".json");
-
-        return builder.ToString();
+        s_configCatch.Clear();
     }
 
 
 //只在编辑器下能够使用
 #if UNITY_EDITOR
+    [NoToLuaAttribute]
+    public static void SaveData(string ConfigName, Dictionary<string, SingleField> data)
+    {
+        ResourceIOTool.WriteStringByFile(PathTool.GetAbsolutePath(ResLoadLocation.Resource,
+            PathTool.GetRelativelyPath(c_directoryName,
+                                                ConfigName,
+                                                c_expandName)),
+                                        JsonTool.Dictionary2Json<SingleField>(data));
+
+        UnityEditor.AssetDatabase.Refresh();
+    }
+    [NoToLuaAttribute]
     public static Dictionary<string, object> GetEditorConfigData(string ConfigName)
     {
         UnityEditor.AssetDatabase.Refresh();
 
-        string dataJson = ResourceIOTool.ReadStringByFile(GetEditorPath(ConfigName));
+        string dataJson = ResourceIOTool.ReadStringByFile(PathTool.GetEditorPath(c_directoryName, ConfigName, c_expandName));
 
         if (dataJson == "")
         {
@@ -91,26 +109,14 @@ public static class ConfigManager
         }
     }
 
+    [NoToLuaAttribute]
     public static void SaveEditorConfigData(string ConfigName, Dictionary<string, object> data)
     {
         string configDataJson = Json.Serialize(data);
 
-        ResourceIOTool.WriteStringByFile(GetEditorPath(ConfigName), configDataJson);
+        ResourceIOTool.WriteStringByFile(PathTool.GetEditorPath(c_directoryName, ConfigName, c_expandName), configDataJson);
 
         UnityEditor.AssetDatabase.Refresh();
-    }
-
-    public static string GetEditorPath(string ConfigName)
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.Append(Application.dataPath);
-        builder.Append("/Editor");
-        builder.Append(directoryName);
-        builder.Append("/");
-        builder.Append(ConfigName);
-        builder.Append(".json");
-
-        return builder.ToString();
     }
 #endif
 }

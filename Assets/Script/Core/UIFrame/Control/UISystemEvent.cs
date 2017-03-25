@@ -52,15 +52,26 @@ public class UISystemEvent
 
     public static void Dispatch(UIWindowBase l_UI, UIEvent l_UIEvent,params object[] l_objs)
     {
+        if (l_UI == null)
+        {
+            Debug.LogError("Dispatch l_UI is null!");
+
+            return;
+        }
+
         if (s_allUIEvents.ContainsKey(l_UIEvent))
         {
-            try
+            //遍历委托链表
+            foreach (UICallBack callBack in s_allUIEvents[l_UIEvent].GetInvocationList())
             {
-                s_allUIEvents[l_UIEvent](l_UI, l_objs);
-            }
-            catch(Exception e)
-            {
-                Debug.LogError("UISystemEvent Dispatch error:" + e.ToString());
+                try
+                {
+                    callBack(l_UI, l_objs);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("UISystemEvent Dispatch error:" + e.ToString());
+                }
             }
         }
 
@@ -68,13 +79,17 @@ public class UISystemEvent
         {
             if (s_singleUIEvents[l_UI.name].ContainsKey(l_UIEvent))
             {
-                try
+                //遍历委托链表
+                foreach (UICallBack callBack in s_singleUIEvents[l_UI.name][l_UIEvent].GetInvocationList())
                 {
-                    s_singleUIEvents[l_UI.name][l_UIEvent](l_UI, l_objs);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("UISystemEvent Dispatch error:" + e.ToString());
+                    try
+                    {
+                        callBack(l_UI, l_objs);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("UISystemEvent Dispatch error:" + e.ToString());
+                    }
                 }
             }
         }

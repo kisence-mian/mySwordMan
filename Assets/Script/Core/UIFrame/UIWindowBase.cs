@@ -10,7 +10,7 @@ public class UIWindowBase : UIBase
     public GameObject m_bgMask;
     public GameObject m_uiRoot;
 
-    List<Enum> m_EventNames = new List<Enum>();
+
 
     #region 重载方法
 
@@ -24,6 +24,16 @@ public class UIWindowBase : UIBase
 
     }
 
+    public virtual void OnHide()
+    {
+
+    }
+
+    public virtual void OnShow()
+    {
+
+    }
+
     public virtual void OnRefresh()
     {
     }
@@ -33,12 +43,11 @@ public class UIWindowBase : UIBase
         //默认无动画
         l_animComplete(this, l_callBack, objs);
 
-        yield return null;
+        yield break;
     }
 
     public virtual void OnCompleteEnterAnim()
     {
-
     }
 
     public virtual IEnumerator ExitAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
@@ -46,19 +55,26 @@ public class UIWindowBase : UIBase
         //默认无动画
         l_animComplete(this, l_callBack, objs);
 
-        yield return null;
+        yield break;
     }
 
     public virtual void OnCompleteExitAnim()
     {
-
     }
 
     #endregion 
 
     #region 继承方法
 
-    public void AddEvent(Enum l_Event)
+
+    //刷新是主动调用
+    public void Refresh(params object[] args)
+    {
+        UISystemEvent.Dispatch(this, UIEvent.OnRefresh);
+        OnRefresh();
+    }
+
+    public void AddEventListener(Enum l_Event)
     {
         if (!m_EventNames.Contains(l_Event))
         {
@@ -67,20 +83,18 @@ public class UIWindowBase : UIBase
         }
     }
 
-    public void RemoveAllEvent()
+    public override void RemoveAllListener()
     {
-        for (int i = 0; i < m_EventNames.Count;i++ )
+        base.RemoveAllListener();
+
+        for (int i = 0; i < m_EventNames.Count; i++)
         {
             GlobalEvent.RemoveEvent(m_EventNames[i], Refresh);
         }
+
+        m_EventNames.Clear();
     }
 
-    //刷新是主动调用
-    public  void Refresh(params object[] args)
-    {
-        UISystemEvent.Dispatch(this, UIEvent.OnRefresh);
-        OnRefresh();
-    }
 
     #endregion
 }

@@ -30,20 +30,18 @@ public class GameBaseBoardWindow : UIWindowBase
     //UI的进入动画
     public override IEnumerator EnterAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        AnimSystem.uguiAlpha(gameObject, 0, 1, 1, InteType.Linear, true, (object[] obj) =>
+        AnimSystem.UguiAlpha(gameObject, 0, 1, 1, interp: InterpType.Linear,isChild: true,callBack: (object[] obj) =>
         {
             l_animComplete(this, l_callBack, objs);
         });
 
         yield return new WaitForSeconds(5);
-
-    ;
     }
 
     //UI的退出动画
     public override IEnumerator ExitAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        AnimSystem.uguiAlpha(gameObject, 1, 0, 1, InteType.Linear, true, (object[] obj) =>
+        AnimSystem.UguiAlpha(gameObject, 1, 0, 1,interp: InterpType.Linear,isChild: true,callBack: (object[] obj) =>
         {
             base.ExitAnim(l_animComplete, l_callBack, objs);
         });

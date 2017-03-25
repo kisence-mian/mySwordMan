@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Text;
+using System;
 /*
  * gameLoadType 为 Resource 时 ，所有资源从Resource读取
  * gameLoadType 不为 Resource时，资源读取方式从配置中读取
@@ -10,73 +11,27 @@ public static class ResourceManager
     /// <summary>
     /// 游戏内资源读取类型
     /// </summary>
-    public static ResLoadType gameLoadType = ResLoadType.Resource; //默认从resourcePath中读取
+    public static ResLoadLocation m_gameLoadType = ResLoadLocation.Resource; //默认从resourcePath中读取
 
-    public static string GetPath(string localPath, ResLoadType loadType)
+    public static ResLoadLocation GetLoadType(ResLoadLocation loadType)
     {
-        StringBuilder path = new StringBuilder();
-        switch (loadType)
+        //如果设置从Resource中加载则忽略打包设置
+        if (m_gameLoadType == ResLoadLocation.Resource)
         {
-            case ResLoadType.Resource: 
-                #if UNITY_EDITOR
-                    path.Append( Application.dataPath);
-                    path.Append("/Resources/");
-                    break;
-                #endif
-            case ResLoadType.Streaming:
-                #if UNITY_EDITOR
-                    path.Append(Application.dataPath);
-                    path.Append("/StreamingAssets/");
-                    break;
-                #else
-                    path.Append(Application.streamingAssetsPath);
-                    path.Append("/");
-                    break;
-                #endif
-
-            case ResLoadType.Persistent:
-                path.Append(Application.persistentDataPath);
-                path.Append("/");
-                break;
-
-            case ResLoadType.Catch:
-                path.Append(Application.temporaryCachePath);
-                path.Append("/");
-                break;
-
-            default:
-                Debug.LogError("Type Error !" + loadType);
-                break;
-        }
-
-        path.Append(localPath);
-        return path.ToString();
-    }
-
-    public static ResLoadType GetLoadType(ResLoadType loadType)
-    {
-        if (gameLoadType == ResLoadType.Resource)
-        {
-            return ResLoadType.Resource;
-        }
-
-        if (loadType == ResLoadType.Default)
-        {
-            return gameLoadType;
+            return ResLoadLocation.Resource;
         }
 
         return loadType;
     }
 
     //读取一个文本
-    public static string ReadTextFile(string path)
+    public static string ReadTextFile(string textName)
     {
-        TextAsset text = (TextAsset)Load(path);
+        TextAsset text = (TextAsset)Load(textName);
 
         if (text == null)
         {
-            Debug.LogError("ResourceManager: ReadTextFile Dont find " + path);
-            return "";
+            throw new Exception("ReadTextFile not find " + textName);
         }
         else
         {
@@ -85,28 +40,25 @@ public static class ResourceManager
     }
 
     //保存一个文本
-    public static void WriteTextFile(string path,string content ,ResLoadType type = ResLoadType.Default)
+    public static void WriteTextFile(string path,string content ,ResLoadLocation type)
     {
         #if UNITY_EDITOR
-            ResourceIOTool.WriteStringByFile(GetPath(path, ResLoadType.Resource), content);
+            ResourceIOTool.WriteStringByFile(PathTool.GetAbsolutePath(type, path), content);
         #else
             
         #endif
-
     }
 
     public static object Load(string name)
     {
-        BundleConfig packData  = BundleConfigManager.GetBundleConfig(name);
+        ResourcesConfig packData  = ResourcesConfigManager.GetBundleConfig(name);
 
         if(packData == null)
         {
-            return null;
+            throw new Exception("Load Exception not find " + name);
         }
 
-        ResLoadType loadTypeTmp = GetLoadType(packData.loadType);
-
-        if (loadTypeTmp == ResLoadType.Resource)
+        if (m_gameLoadType == ResLoadLocation.Resource)
         {
             return Resources.Load(packData.path);
         }
@@ -115,24 +67,54 @@ public static class ResourceManager
             return AssetsBundleManager.Load(name);
         }
     }
+
+    public static T Load<T>(string name) where T: UnityEngine.Object
+    {
+        ResourcesConfig packData = ResourcesConfigManager.GetBundleConfig(name);
+
+        if (packData == null)
+        {
+            throw new Exception("Load Exception not find " + name);
+        }
+
+        if (m_gameLoadType == ResLoadLocation.Resource)
+        {
+            return Resources.Load<T>(packData.path);
+        }
+        else
+        {
+            return AssetsBundleManager.Load<T>(name);
+        }
+    }
+
     public static void LoadAsync(string name,LoadCallBack callBack)
     {
-        BundleConfig packData  = BundleConfigManager.GetBundleConfig(name);
+        ResourcesConfig packData  = ResourcesConfigManager.GetBundleConfig(name);
 
         if (packData == null)
         {
             return ;
         }
 
-        ResLoadType loadTypeTmp = GetLoadType(packData.loadType);
-
-        if (loadTypeTmp == ResLoadType.Resource)
+        if (m_gameLoadType == ResLoadLocation.Resource)
         {
             ResourceIOTool.ResourceLoadAsync(packData.path, callBack);
         }
         else
         {
             AssetsBundleManager.LoadAsync(name,callBack);
+        }
+    }
+
+    public static void UnLoad(string name)
+    {
+        if (m_gameLoadType == ResLoadLocation.Resource)
+        {
+
+        }
+        else
+        {
+            AssetsBundleManager.UnLoadBundle(name);
         }
     }
 
@@ -144,16 +126,12 @@ public static class ResourceManager
     //}
 }
 
-public enum ResLoadType
+public enum ResLoadLocation
 {
-    Default,
-
     Resource,
     Streaming,
     Persistent,
     Catch,
-
-    HotUpdate
 }
 
 

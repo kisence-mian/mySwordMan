@@ -37,26 +37,29 @@ public class UILayerManager : MonoBehaviour
         }
     }
 
-	public void SetLayer(UIWindowBase l_ui)
+	public void SetLayer(UIWindowBase ui)
     {
-        RectTransform l_rt = l_ui.GetComponent<RectTransform>();
-        switch (l_ui.m_UIType)
+        RectTransform rt = ui.GetComponent<RectTransform>();
+        switch (ui.m_UIType)
         {
-            case UIType.GameUI: l_ui.transform.SetParent(m_GameUILayerParent); break;
-            case UIType.Fixed: l_ui.transform.SetParent(m_FixedLayerParent); break;
-            case UIType.Normal: l_ui.transform.SetParent(m_NormalLayerParent); break;
-            case UIType.TopBar: l_ui.transform.SetParent(m_TopbarLayerParent); break;
-            case UIType.PopUp: l_ui.transform.SetParent(m_PopUpLayerParent); break;
+            case UIType.GameUI: ui.transform.SetParent(m_GameUILayerParent); break;
+            case UIType.Fixed: ui.transform.SetParent(m_FixedLayerParent); break;
+            case UIType.Normal: ui.transform.SetParent(m_NormalLayerParent); break;
+            case UIType.TopBar: ui.transform.SetParent(m_TopbarLayerParent); break;
+            case UIType.PopUp: ui.transform.SetParent(m_PopUpLayerParent); break;
         }
 
-        if (l_ui.m_UIType != UIType.GameUI)
-        {
-            l_rt.anchoredPosition = Vector3.zero;
-            l_rt.sizeDelta = Vector2.zero;
-            l_rt.anchorMin = Vector2.zero;
-            l_rt.anchorMax = Vector3.one;
-            l_rt.localScale = Vector3.one;
-        }
+        rt.localScale = Vector3.one;
+        rt.sizeDelta = Vector2.zero;
 
+        if (ui.m_UIType != UIType.GameUI)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector3.one;
+
+            rt.sizeDelta = Vector2.zero;
+            rt.anchoredPosition = Vector3.zero;
+            rt.SetAsLastSibling();
+        }
     }
 }

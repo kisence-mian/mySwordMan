@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class IApplicationStatus
+public abstract class IApplicationStatus
 {
     /// <summary>
     /// 测试使用，直接进入游戏某个流程时，这里可以初始化测试数据
@@ -34,4 +35,23 @@ public class IApplicationStatus
     {
 
     }
+
+    public virtual IEnumerator InChangeScene(ChangSceneFinish handle)
+    {
+        if (handle != null)
+        {
+            try
+            {
+                handle();
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e.ToString());
+            }
+        }
+
+        yield  break;
+    }
+
+    public delegate void ChangSceneFinish();
 }

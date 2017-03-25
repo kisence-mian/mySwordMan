@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+#if UNITY_5_5 
+using UnityEngine.Profiling;
+#endif
 	/// <summary>
 	/// 内存检测器，目前只是输出Profiler信息
 	/// </summary>
@@ -18,7 +20,7 @@ using System.Collections;
 		private Rect allocMemoryRect;
 		private Rect reservedMemoryRect;
 		private Rect unusedReservedMemoryRect;
-        //private Rect RuntimeMemorySizeRect;
+        private Rect RuntimeMemorySizeRect;
 		private Rect monoHeapRect;
 		private Rect monoUsedRect;
 
@@ -29,10 +31,15 @@ using System.Collections;
 
         public void Init()
         {
-            this.x = 60;
-            this.y = 60;
-            this.w = 200;
-            this.h = 20;
+            GUIConsole.onGUICallback += OnGUI;
+        }
+
+        void ResetGUISize()
+        {
+            this.x = 5;
+            this.y = GUIUtil.FontSize;
+            this.w = 1000;
+            this.h = GUIUtil.FontSize;
 
             this.allocMemoryRect = new Rect(x, y, w, h);
             this.reservedMemoryRect = new Rect(x, y + h, w, h);
@@ -40,23 +47,23 @@ using System.Collections;
             //this.RuntimeMemorySizeRect = new Rect(x, y + 3 * h, w, h);
             this.monoHeapRect = new Rect(x, y + 3 * h, w, h);
             this.monoUsedRect = new Rect(x, y + 4 * h, w, h);
-
-            GUIConsole.onGUICallback += OnGUI;
         }
 
 		void OnGUI()
 		{
+            ResetGUISize();
+
 			GUI.Label(this.allocMemoryRect, 
-				string.Format(TotalAllocMemroyFormation, Profiler.GetTotalAllocatedMemory() * ByteToM));
+				string.Format(TotalAllocMemroyFormation,  Profiler.GetTotalAllocatedMemory() * ByteToM));
 			GUI.Label(this.reservedMemoryRect, 
-				string.Format(TotalReservedMemoryFormation, Profiler.GetTotalReservedMemory() * ByteToM));
+				string.Format(TotalReservedMemoryFormation,  Profiler.GetTotalReservedMemory() * ByteToM));
 			GUI.Label(this.unusedReservedMemoryRect, 
-				string.Format(TotalUnusedReservedMemoryFormation, Profiler.GetTotalUnusedReservedMemory() * ByteToM));
+				string.Format(TotalUnusedReservedMemoryFormation,  Profiler.GetTotalUnusedReservedMemory() * ByteToM));
             //GUI.Label(this.RuntimeMemorySizeRect,
-            //    string.Format(TotalUnusedReservedMemoryFormation, Profiler.GetRuntimeMemorySize(AssetsBundleManager) * ByteToM));
+            //    string.Format(TotalUnusedReservedMemoryFormation, Profiler.GetRuntimeMemorySize( .) * ByteToM));
 			GUI.Label(this.monoHeapRect,
-				string.Format(MonoHeapFormation, Profiler.GetMonoHeapSize() * ByteToM));
+				string.Format(MonoHeapFormation,  Profiler.GetMonoHeapSize() * ByteToM));
 			GUI.Label(this.monoUsedRect,
-				string.Format(MonoUsedFormation, Profiler.GetMonoUsedSize() * ByteToM));
+				string.Format(MonoUsedFormation,  Profiler.GetMonoUsedSize() * ByteToM));
 		}
 	}

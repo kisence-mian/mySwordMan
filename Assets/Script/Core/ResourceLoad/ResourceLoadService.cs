@@ -17,9 +17,7 @@ public class ResourceIOTool :MonoBehaviour
         {
             GameObject resourceIOTool = new GameObject();
             resourceIOTool.name = "ResourceIO";
-
-            if(Application.isPlaying)
-                DontDestroyOnLoad(resourceIOTool);
+            DontDestroyOnLoad(resourceIOTool);
 
             instance = resourceIOTool.AddComponent<ResourceIOTool>();
         }
@@ -53,6 +51,16 @@ public class ResourceIOTool :MonoBehaviour
         return line.ToString();
     }
 
+    public static string ReadStringByBundle(string path)
+    {
+        AssetBundle ab = AssetBundle.LoadFromFile(path);
+        TextAsset ta = (TextAsset)ab.mainAsset;
+        string content = ta.ToString();
+        ab.Unload(true);
+
+        return content;
+    }
+
     public static string ReadStringByResource(string path)
     {
         path = FileTool.RemoveExpandName(path);
@@ -78,21 +86,21 @@ public class ResourceIOTool :MonoBehaviour
         StartCoroutine(MonoLoadByResourcesAsync(path, callback));
     }
 
+    LoadState m_loadState = new LoadState(); 
     public IEnumerator MonoLoadByResourcesAsync(string path, LoadCallBack callback)
     {
         ResourceRequest status = Resources.LoadAsync(path);
-        LoadState loadState = new LoadState(); 
-
+        
         while (!status.isDone)
         {
-            loadState.UpdateProgress(status);
-            callback(loadState,null);
+            m_loadState.UpdateProgress(status);
+            callback(m_loadState,null);
 
             yield return 0;
         }
 
-        loadState.UpdateProgress(status);
-        callback(loadState, status.asset);
+        m_loadState.UpdateProgress(status);
+        callback(m_loadState, status.asset);
     }
 
     /// <summary>
@@ -137,6 +145,18 @@ public class ResourceIOTool :MonoBehaviour
         byte[] dataByte = Encoding.GetEncoding("UTF-8").GetBytes(content);
 
         CreateFile(path, dataByte);
+    }
+
+    public static void DeleteFile(string path)
+    {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+        else
+        {
+            Debug.Log("File:[" + path + "] dont exists");
+        }
     }
 
     //web Player 不支持该函数
