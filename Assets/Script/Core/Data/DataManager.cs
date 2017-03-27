@@ -44,7 +44,6 @@ public class DataManager
         {
             //编辑器下不处理缓存
 
-
             if (s_dataCatch.ContainsKey(DataName))
             {
                 return s_dataCatch[DataName];
