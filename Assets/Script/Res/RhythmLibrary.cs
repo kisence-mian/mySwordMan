@@ -8,7 +8,7 @@ public class RhythmLibrary : MonoBehaviour
 
     public static void Init()
     {
-        s_rhythmData = DataManager.GetData("");
+        s_rhythmData = DataManager.GetData("RhythmData");
     }
 
     public static string GetRhythmID(string content)
@@ -22,6 +22,8 @@ public class RhythmLibrary : MonoBehaviour
                 return s_rhythmData.TableIDs[i];
             }
         }
+
+        Debug.Log("查无此韵 " + content);
 
         return "";
     }

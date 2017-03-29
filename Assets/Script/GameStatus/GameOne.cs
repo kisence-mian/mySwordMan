@@ -8,6 +8,7 @@ public class GameOne : IApplicationStatus
     public override void OnEnterStatus()
     {
         UIManager.OpenUIWindow<GameOneMainMenuWindow>();
+        RhythmLibrary.Init();
     }
 
     public void StartNormalModel()
