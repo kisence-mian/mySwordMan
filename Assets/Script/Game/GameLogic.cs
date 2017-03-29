@@ -115,22 +115,25 @@ public class GameLogic
 
         Debug.Log("当前声韵: "+currentPoemData.m_content[s_currentLine]+" " + rhythm);
 
+        s_correctIndex = GetRandomIndex(true);
+
         //正确答案
-        m_questions[GetRandomIndex(true)] = currentPoemData.m_content[s_currentLine];
+        m_questions[s_correctIndex] = currentPoemData.m_content[s_currentLine];
 
         //错误答案
         m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
         m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
+        m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
 
-        //有一句错误答案取自本诗
-        if(currentPoemData.m_content.Length - s_currentLine > 5)
-        {
-            m_questions[GetRandomIndex(false)] = GetErrorAnswerSelfPoem();
-        }
-        else
-        {
-            m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
-        }
+        ////有一句错误答案取自本诗
+        //if(currentPoemData.m_content.Length - s_currentLine > 5)
+        //{
+        //    m_questions[GetRandomIndex(false)] = GetErrorAnswerSelfPoem();
+        //}
+        //else
+        //{
+        //    m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
+        //}
         
         GlobalEvent.DispatchEvent(GameEventEnum.QuestionChange);
     }
@@ -216,13 +219,18 @@ public class GameLogic
             || tmp.m_content[random] == m_questions[1]
             || tmp.m_content[random] == m_questions[2]
             || tmp.m_content[random] == m_questions[3]
-            //|| (rhythm !="" &&  RhythmLibrary.GetRhythmID(tmp.m_content[random]) != rhythm)
+            ||(rhythm !="" &&  RhythmLibrary.GetRhythmID(tmp.m_content[random]) != ( rhythm))
+            || tmp.m_content[random].Length != GetCurrentContent().Length
             )
         {
+            random = RandomService.GetRand(0, s_poemdata.TableIDs.Count);
+            poemID = s_poemdata.TableIDs[random];
+
+            tmp = DataGenerateManager<poemDataGenerate>.GetData(poemID);
             random = RandomService.GetRand(0, tmp.m_content.Length);
         }
-
-        Debug.Log(tmp.m_content[random] +" "+ RhythmLibrary.GetRhythmID(tmp.m_content[random]));
+        bool boolTmp = (rhythm !="" &&  RhythmLibrary.GetRhythmID(tmp.m_content[random]) != ( rhythm)) ;
+        Debug.Log(boolTmp+ "　" +tmp.m_content[random] +" "+ RhythmLibrary.GetRhythmID(tmp.m_content[random]));
 
         return tmp.m_content[random];
     }
