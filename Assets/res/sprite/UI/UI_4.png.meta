@@ -1,0 +1,87 @@
+fileFormatVersion: 2
+guid: 378cf7e3a664c53408e1dab420a80ed5
+timeCreated: 1462978329
+licenseType: Pro
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: UI_4_0
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: -1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: UI_4_0
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 688
+        width: 165
+        height: 336
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 82, y: 38, z: 82, w: 41}
+      outline:
+      - - {x: 82.5, y: -142}
+        - {x: 80.5, y: -142}
+        - {x: 80.5, y: 145}
+        - {x: 82.5, y: 146}
+        - {x: 82.5, y: 168}
+        - {x: 67.5, y: 168}
+        - {x: -69.5, y: 167}
+        - {x: -69.5, y: 168}
+        - {x: -82.5, y: 168}
+        - {x: -82.5, y: 144}
+        - {x: -81.5, y: 144}
+        - {x: -81.5, y: -142}
+        - {x: -82.5, y: -143}
+        - {x: -82.5, y: -168}
+        - {x: 10.5, y: -168}
+        - {x: 69.5, y: -167}
+        - {x: 69.5, y: -168}
+        - {x: 82.5, y: -168}
+    outline: []
+  spritePackingTag: UI
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
