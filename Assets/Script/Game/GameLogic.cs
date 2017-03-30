@@ -102,7 +102,7 @@ public class GameLogic
             isError = true;
         }
 
-        LevelJudge(isError); ;
+        LevelJudge(isError);
 
         return isError;
     }

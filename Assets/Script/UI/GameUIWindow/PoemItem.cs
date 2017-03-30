@@ -32,12 +32,14 @@ public class PoemItem :PoolObject
     {
         if(isError)
         {
-            m_text.text = "<color=#ff0000>"+content+"</color>";
+            m_text.color = Color.red;
         }
         else
         {
-            m_text.text = content;
+            m_text.color = Color.black;
         }
+
+        m_text.text = content;
     }
 
     public void StartAnim()
