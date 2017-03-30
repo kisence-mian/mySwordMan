@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GameOne : IApplicationStatus 
 {
-    GameLogic m_gameLogic = new GameLogic();
     public override void OnEnterStatus()
     {
         UIManager.OpenUIWindow<GameOneMainMenuWindow>();

@@ -22,7 +22,8 @@ public class GameOneMainMenuWindow : UIWindowBase
         AnimSystem.UguiMove(GetGameObject("Text_title"),  new Vector3(0, 200, 0),new Vector3(0,-200,0), 1f,interp:InterpType.OutExpo);
         AnimSystem.UguiMove(GetGameObject("Button_GameStart"), new Vector3(0, -1000, 0), new Vector3(0, -256, 0), 1f, interp: InterpType.OutExpo);
 
-        AnimSystem.UguiAlpha(gameObject, 0, 1, callBack:(object[] obj)=>
+        AnimSystem.UguiAlpha(GetGameObject("Button_GameStart"), 0, 1);
+        AnimSystem.UguiAlpha(GetGameObject("Text_title"), 0, 1, callBack: (object[] obj) =>
         {
             StartCoroutine(base.EnterAnim(l_animComplete, l_callBack, objs));
         });
