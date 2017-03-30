@@ -61,8 +61,6 @@ public class GameLogic
         s_currentLine = 2;
 
         CreateAnswer();
-
-
     }
 
     public static void NextLine()
@@ -111,30 +109,26 @@ public class GameLogic
 
     static void CreateAnswer()
     {
-        string rhythm = RhythmLibrary.GetRhythmID(currentPoemData.m_content[s_currentLine]);
+        PuzzleService.Reset();
 
-        Debug.Log("当前声韵: "+currentPoemData.m_content[s_currentLine]+" " + rhythm);
+        //去掉已出的所有句子
+        for (int i = 0; i <= s_currentLine; i++)
+        {
+            PuzzleService.RemoveSentence(currentPoemData.m_content[i]);
+        }
+
+        PuzzleService.RemoveSentence(GetCurrentContent());
 
         s_correctIndex = GetRandomIndex(true);
 
         //正确答案
-        m_questions[s_correctIndex] = currentPoemData.m_content[s_currentLine];
+        m_questions[s_correctIndex] = GetCurrentContent();
 
         //错误答案
-        m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
-        m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
-        m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
+        m_questions[GetRandomIndex(false)] = PuzzleService.GetErrorAnswer(GetCurrentContent());
+        m_questions[GetRandomIndex(false)] = PuzzleService.GetErrorAnswer(GetCurrentContent());
+        m_questions[GetRandomIndex(false)] = PuzzleService.GetErrorAnswer(GetCurrentContent());
 
-        ////有一句错误答案取自本诗
-        //if(currentPoemData.m_content.Length - s_currentLine > 5)
-        //{
-        //    m_questions[GetRandomIndex(false)] = GetErrorAnswerSelfPoem();
-        //}
-        //else
-        //{
-        //    m_questions[GetRandomIndex(false)] = GetErrorAnswer(rhythm);
-        //}
-        
         GlobalEvent.DispatchEvent(GameEventEnum.QuestionChange);
     }
 
@@ -143,7 +137,7 @@ public class GameLogic
         if(isError)
         {
             ComboCount = 0;
-            Score -= 30;
+            //Score -= 30;
 
             GlobalEvent.DispatchEvent(GameEventEnum.ShowScoreLevel, ScoreLevel.bad);
         }
@@ -173,6 +167,7 @@ public class GameLogic
             }
             else
             {
+                ComboCount = 0;
                 level = ScoreLevel.normal;
                 scoreTmp = 5;
             }
@@ -202,60 +197,6 @@ public class GameLogic
         return result;
     }
 
-    static string GetErrorAnswer(string rhythm)
-    {
-        //随机取一首诗的一句
-        int random = RandomService.GetRand(0, s_poemdata.TableIDs.Count);
-        string poemID = s_poemdata.TableIDs[random];
-
-        poemDataGenerate tmp = DataGenerateManager<poemDataGenerate>.GetData(poemID);
-        random = RandomService.GetRand(0, tmp.m_content.Length);
-
-        //空格和重复，再重新随机,韵律也需要相同
-        while (tmp.m_content[random].Contains("space") 
-            || tmp.m_content[random] == GetCurrentContent()
-
-            || tmp.m_content[random] == m_questions[0]
-            || tmp.m_content[random] == m_questions[1]
-            || tmp.m_content[random] == m_questions[2]
-            || tmp.m_content[random] == m_questions[3]
-            ||(rhythm !="" &&  RhythmLibrary.GetRhythmID(tmp.m_content[random]) != ( rhythm))
-            || tmp.m_content[random].Length != GetCurrentContent().Length
-            )
-        {
-            random = RandomService.GetRand(0, s_poemdata.TableIDs.Count);
-            poemID = s_poemdata.TableIDs[random];
-
-            tmp = DataGenerateManager<poemDataGenerate>.GetData(poemID);
-            random = RandomService.GetRand(0, tmp.m_content.Length);
-        }
-        bool boolTmp = (rhythm !="" &&  RhythmLibrary.GetRhythmID(tmp.m_content[random]) != ( rhythm)) ;
-        Debug.Log(boolTmp+ "　" +tmp.m_content[random] +" "+ RhythmLibrary.GetRhythmID(tmp.m_content[random]));
-
-        return tmp.m_content[random];
-    }
-
-    static string GetErrorAnswerSelfPoem()
-    {
-        int random = RandomService.GetRand(s_currentLine, currentPoemData.m_content.Length);
-
-        //空格和重复，再重新随机
-        while (currentPoemData.m_content[random].Contains("space")
-            || currentPoemData.m_content[random] == GetCurrentContent()
-
-            || currentPoemData.m_content[random] == m_questions[0]
-            || currentPoemData.m_content[random] == m_questions[1]
-            || currentPoemData.m_content[random] == m_questions[2]
-            || currentPoemData.m_content[random] == m_questions[3]
-            )
-        {
-            random = RandomService.GetRand(0, currentPoemData.m_content.Length);
-        }
-
-        Debug.Log(currentPoemData.m_content[random] + " " + RhythmLibrary.GetRhythmID(currentPoemData.m_content[random]));
-
-        return currentPoemData.m_content[random];
-    }
 }
 enum GameEventEnum
 {

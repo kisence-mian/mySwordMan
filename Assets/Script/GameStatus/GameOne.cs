@@ -9,6 +9,8 @@ public class GameOne : IApplicationStatus
     {
         UIManager.OpenUIWindow<GameOneMainMenuWindow>();
         RhythmLibrary.Init();
+        PoemLibrary.Init(null);
+        PuzzleService.Init();
     }
 
     public void StartNormalModel()

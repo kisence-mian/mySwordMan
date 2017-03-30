@@ -23,8 +23,15 @@ public class RhythmLibrary : MonoBehaviour
             }
         }
 
-        Debug.Log("查无此韵 " + content);
+        //Debug.Log("查无此韵 " + content);
 
-        return "";
+        return "未知";
     }
+
+    public static List<string> GetRhythmList()
+    {
+        return s_rhythmData.TableIDs;
+    }
+
+
 }

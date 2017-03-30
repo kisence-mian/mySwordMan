@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PoemLibrary : MonoBehaviour {
+public class PoemLibrary  
+{
+    List<poemDataGenerate> s_poemList;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public static void Init(List<string> tags)
+    {
+
+    }
+
+    public static poemDataGenerate GetRandomPoem()
+    {
+        return null;
+    }
 }
