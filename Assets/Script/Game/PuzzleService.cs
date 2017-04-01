@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -213,6 +214,18 @@ public class PuzzleService
         List<int> list = new List<int>(contents.Keys);
 
         int random = RandomService.GetRand(0,list.Count);
+        int count = 0;
+
+        while(contents[list[random]].Count ==0)
+        {
+            random = RandomService.GetRand(0, list.Count);
+            count++;
+
+            if(count > 1000)
+            {
+                throw new Exception("GetRandomContent Time Out !");
+            }
+        }
 
         return GetRandomAnswer(contents[list[random]]);
     }
