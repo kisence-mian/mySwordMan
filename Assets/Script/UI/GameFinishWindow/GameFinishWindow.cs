@@ -91,7 +91,7 @@ public class GameFinishWindow : UIWindowBase
 
     void OnBackMenu(InputUIOnClickEvent e)
     {
-        ApplicationStatusManager.EnterStatus<MainStatus>();
+        ApplicationStatusManager.EnterStatus<MainMenuState>();
     }
 
     void OnAddFavorites(InputUIOnClickEvent e)
@@ -104,6 +104,6 @@ public class GameFinishWindow : UIWindowBase
     void OnExaminePoem(InputUIOnClickEvent e)
     {
         ExaminePoemWindow.s_poemData = GameLogic.currentPoemData ;
-        ApplicationStatusManager.EnterStatus<ExamineStatus>();
+        UIManager.OpenUIWindow<ExaminePoemWindow>();
     }
 }

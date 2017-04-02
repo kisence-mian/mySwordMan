@@ -30,7 +30,7 @@ public class GameStatus : IApplicationStatus
         CloseUI<GameUIWindow>();
         CloseUI<GameFinishWindow>();
 
-        OpenUI<GameUIWindow>();
+        OpenUI<CountDownWindow>();
     }
 
     public void OpenFinishUI()

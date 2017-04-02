@@ -21,11 +21,12 @@ public class ExaminePoemWindow : UIWindowBase
 
     public override void OnOpen()
     {
+        UpdateFavoriteSwitch();
+        UIManager.HideOtherUI("ExaminePoemWindow");
+
         SetData(s_poemData);
 
-        SetActive("Button_removeFavorite", FavoritesService.GetIsFavorites(s_poemData.m_key));
-
-        AddOnClickListener("Button_removeFavorite", OnClickRemoveFavorite);
+        AddOnClickListener("Button_FavoriteSwitch", OnClickFavoriteSwitch);
         AddOnClickListener("Button_exercise", OnClickExercise);
         AddOnClickListener("Button_return", OnClickReturn);
     }
@@ -60,11 +61,7 @@ public class ExaminePoemWindow : UIWindowBase
         AnimSystem.UguiMove(GetGameObject("Text_author"), new Vector3(172,150,0), new Vector3(172,-80,0), 0.5f, 0, InterpType.OutBack);
         AnimSystem.UguiMove(GetGameObject("Text_poemName"), new Vector3(0, 100, 0), new Vector3(0, -40, 0), 0.5f, 0, InterpType.OutBack);
 
-        if (FavoritesService.GetIsFavorites(s_poemData.m_key))
-        {
-            AnimSystem.UguiMove(GetGameObject("Button_removeFavorite"), new Vector3(0, -100, 0), new Vector3(0, 180, 0), 0.5f, 0, InterpType.OutBack);
-        }
-
+        AnimSystem.UguiMove(GetGameObject("Button_FavoriteSwitch"), new Vector3(0, -100, 0), new Vector3(0, 175, 0), 0.5f, 0, InterpType.OutBack);
         AnimSystem.UguiMove(GetGameObject("Button_exercise"), new Vector3(0, -100, 0), new Vector3(0, 110, 0), 0.5f, 0, InterpType.OutBack);
         AnimSystem.UguiMove(GetGameObject("Button_return"), new Vector3(0, -100, 0), new Vector3(0, 45, 0), 0.5f, 0, InterpType.OutBack);
 
@@ -79,17 +76,33 @@ public class ExaminePoemWindow : UIWindowBase
     //UI的退出动画
     public override IEnumerator ExitAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        AnimSystem.UguiAlpha(gameObject , null, 0, callBack:(object[] obj) =>
-        {
-            StartCoroutine(base.ExitAnim(l_animComplete, l_callBack, objs));
-        });
-
-        yield return new WaitForEndOfFrame();
+        return base.ExitAnim(l_animComplete, l_callBack, objs);
     }
 
-    void OnClickRemoveFavorite(InputUIOnClickEvent e)
+    void OnClickFavoriteSwitch(InputUIOnClickEvent e)
     {
-        FavoritesService.RemoveFavoite(s_poemData.m_key);
+        if (FavoritesService.GetIsFavorites(s_poemData.m_key))
+        {
+            FavoritesService.RemoveFavoite(s_poemData.m_key);
+        }
+        else
+        {
+            FavoritesService.AddFavorites(s_poemData.m_key);
+        }
+
+        UpdateFavoriteSwitch();
+    }
+
+    void UpdateFavoriteSwitch()
+    {
+        if(FavoritesService.GetIsFavorites(s_poemData.m_key))
+        {
+            SetText("Text_FavoriteSwitch", "移除收藏");
+        }
+        else
+        {
+            SetText("Text_FavoriteSwitch", "加入收藏");
+        }
     }
 
     void OnClickExercise(InputUIOnClickEvent e)
@@ -99,6 +112,7 @@ public class ExaminePoemWindow : UIWindowBase
 
     void OnClickReturn(InputUIOnClickEvent e)
     {
-        ApplicationStatusManager.EnterStatus<MainMenuState>();
+        UIManager.ShowOtherUI("ExaminePoemWindow");
+        UIManager.CloseUIWindow(this);
     }
 }

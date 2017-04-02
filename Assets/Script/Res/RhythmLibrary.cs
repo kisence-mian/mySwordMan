@@ -26,7 +26,7 @@ public class RhythmLibrary : MonoBehaviour
                 }
             }
 
-            Debug.Log("查无此韵 " + content);
+            //Debug.Log("查无此韵 " + content);
         }
         catch(Exception e)
         {
