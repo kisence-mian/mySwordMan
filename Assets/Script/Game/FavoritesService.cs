@@ -4,17 +4,22 @@ using UnityEngine;
 
 public class FavoritesService 
 {
+    static bool isInit = false;
     const string c_recordName = "FavoritesPoem";
     static List<string> s_favoritesList = new List<string>();
 
     public static void Init()
     {
-        s_favoritesList = new List<string>();
-
-        RecordTable data = RecordManager.GetData(c_recordName);
-        foreach(var item in data)
+        if (!isInit)
         {
-            s_favoritesList.Add(item.Key);
+            isInit = true;
+            s_favoritesList = new List<string>();
+
+            RecordTable data = RecordManager.GetData(c_recordName);
+            foreach (var item in data)
+            {
+                s_favoritesList.Add(item.Key);
+            }
         }
     }
 
@@ -31,7 +36,7 @@ public class FavoritesService
 
     public static List<string> GetFavoritesList()
     {
-        return null;
+        return s_favoritesList;
     }
 
     public static bool GetIsFavorites(string poemID)
