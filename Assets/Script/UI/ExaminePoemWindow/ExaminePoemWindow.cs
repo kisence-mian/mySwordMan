@@ -58,12 +58,14 @@ public class ExaminePoemWindow : UIWindowBase
     //UI的进入动画
     public override IEnumerator EnterAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        AnimSystem.UguiMove(GetGameObject("Text_author"), new Vector3(172,150,0), new Vector3(172,-80,0), 0.5f, 0, InterpType.OutBack);
-        AnimSystem.UguiMove(GetGameObject("Text_poemName"), new Vector3(0, 100, 0), new Vector3(0, -40, 0), 0.5f, 0, InterpType.OutBack);
+        AnimSystem.UguiMove(GetGameObject("Text_author"), new Vector3(172, 150, 0), new Vector3(172, -80, 0), 0.5f, 0, InterpType.OutExpo);
+        AnimSystem.UguiMove(GetGameObject("Text_poemName"), new Vector3(0, 100, 0), new Vector3(0, -40, 0), 0.5f, 0, InterpType.OutExpo);
 
-        AnimSystem.UguiMove(GetGameObject("Button_FavoriteSwitch"), new Vector3(0, -100, 0), new Vector3(0, 175, 0), 0.5f, 0, InterpType.OutBack);
-        AnimSystem.UguiMove(GetGameObject("Button_exercise"), new Vector3(0, -100, 0), new Vector3(0, 110, 0), 0.5f, 0, InterpType.OutBack);
-        AnimSystem.UguiMove(GetGameObject("Button_return"), new Vector3(0, -100, 0), new Vector3(0, 45, 0), 0.5f, 0, InterpType.OutBack);
+        AnimSystem.UguiMove(GetGameObject("Button_FavoriteSwitch"), new Vector3(0, -100, 0), new Vector3(0, 175, 0), 0.5f, 0, InterpType.OutExpo);
+        AnimSystem.UguiMove(GetGameObject("Button_exercise"), new Vector3(0, -100, 0), new Vector3(0, 110, 0), 0.5f, 0, InterpType.OutExpo);
+        AnimSystem.UguiMove(GetGameObject("Button_return"), new Vector3(0, -100, 0), new Vector3(0, 45, 0), 0.5f, 0, InterpType.OutExpo);
+
+        AnimSystem.UguiMove(GetGameObject("ScrollRect"), new Vector3(0, 800, 0), new Vector3(0, 32.5f, 0), 0.5f, 0, InterpType.OutExpo);
 
         AnimSystem.UguiAlpha(gameObject, 0, 1, callBack:(object[] obj)=>
         {

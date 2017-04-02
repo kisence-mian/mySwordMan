@@ -27,8 +27,7 @@ public class FavoriteWindow : UIWindowBase
             Dictionary<string, object> item = new Dictionary<string, object>();
             poemDataGenerate poemData = DataGenerateManager<poemDataGenerate>.GetData(list[i]);
 
-            item.Add("author", poemData.m_author);
-            item.Add("poemName", poemData.m_poemName);
+            item.Add("poemData", poemData);
 
             data.Add(item);
         }
