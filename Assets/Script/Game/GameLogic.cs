@@ -80,7 +80,7 @@ public class GameLogic
         }
         else
         {
-            UIManager.OpenUIWindow<GameFinishWindow>();
+            ApplicationStatusManager.GetStatus<GameStatus>().OpenFinishUI();
         }
     }
 

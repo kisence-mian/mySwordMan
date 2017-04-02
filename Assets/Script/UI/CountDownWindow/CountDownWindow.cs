@@ -78,6 +78,6 @@ public class CountDownWindow : UIWindowBase
 
     void FinsihCountDown()
     {
-        ApplicationStatusManager.GetStatus<GameOne>().FinishCountDown();
+        ApplicationStatusManager.GetStatus<GameStatus>().FinishCountDown();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,17 +14,25 @@ public class RhythmLibrary : MonoBehaviour
 
     public static string GetRhythmID(string content)
     {
-        string tmp = content.Substring(content.Length - 1, 1);
-
-        for (int i = 0; i < s_rhythmData.TableIDs.Count; i++)
+        try
         {
-            if (DataGenerateManager<RhythmDataGenerate>.GetData(s_rhythmData.TableIDs[i]).m_Content.Contains(tmp))
+            string tmp = content.Substring(content.Length - 1, 1);
+
+            for (int i = 0; i < s_rhythmData.TableIDs.Count; i++)
             {
-                return s_rhythmData.TableIDs[i];
+                if (DataGenerateManager<RhythmDataGenerate>.GetData(s_rhythmData.TableIDs[i]).m_Content.Contains(tmp))
+                {
+                    return s_rhythmData.TableIDs[i];
+                }
             }
+
+            Debug.Log("查无此韵 " + content);
+        }
+        catch(Exception e)
+        {
+            Debug.LogError("GetRhythmID Error :->" +content + "<- Exception : " + e.ToString());
         }
 
-        Debug.Log("查无此韵 " + content);
 
         return "未知";
     }

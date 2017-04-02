@@ -47,8 +47,6 @@ public class GameOneMainMenuWindow : UIWindowBase
 
     void OnClickNormalModel(InputUIOnClickEvent e)
     {
-        ApplicationStatusManager.GetStatus<GameOne>().StartNormalModel();
+        ApplicationStatusManager.EnterStatus<GameStatus>();
     }
-
-
 }
