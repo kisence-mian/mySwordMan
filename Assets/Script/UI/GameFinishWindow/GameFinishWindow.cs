@@ -51,7 +51,6 @@ public class GameFinishWindow : UIWindowBase
 
         SetActive("Button_read", true);
 
-        
 
         AnimSystem.UguiMove(GetGameObject("Button_back"), new Vector3(0, -100, 0), new Vector3(0, 50, 0), 0.5f, 0.3f, interp: InterpType.OutQuart);
         AnimSystem.UguiMove(GetGameObject("Button_again"), new Vector3(0, -200, 0), new Vector3(0, 120, 0), 0.5f, 0.2f, interp: InterpType.OutQuart);
@@ -71,16 +70,14 @@ public class GameFinishWindow : UIWindowBase
         yield return base.EnterAnim(l_animComplete, l_callBack, objs);
     }
 
+    public override void OnCompleteEnterAnim()
+    {
+        SDKManager.PlayAD(ADType.Interstitial);
+    }
+
     //UI的退出动画
     public override IEnumerator ExitAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
-        //AnimSystem.UguiAlpha(gameObject , null, 0,time:0.2f, callBack:(object[] obj) =>
-        //{
-        //    StartCoroutine(base.ExitAnim(l_animComplete, l_callBack, objs));
-        //});
-
-        //yield return new WaitForEndOfFrame();
-
         yield return base.ExitAnim(l_animComplete, l_callBack, objs);
     }
 

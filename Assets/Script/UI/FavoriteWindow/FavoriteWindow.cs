@@ -8,6 +8,8 @@ public class FavoriteWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnInit()
     {
+        SDKManager.PlayAD(ADType.Banner);
+
         GetReusingScrollRect("scrollRect").Init(UIEventKey, "FavoriteItem");
     }
 
@@ -16,6 +18,11 @@ public class FavoriteWindow : UIWindowBase
         AddOnClickListener("Button_return", OnClickReturn);
         AddOnClickListener("Button_exercise", OnClickExercise);
         SetData();
+    }
+
+    public override void OnClose()
+    {
+        SDKManager.CloseAD(ADType.Banner);
     }
 
     void SetData()
