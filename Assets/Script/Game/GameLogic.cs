@@ -5,7 +5,6 @@ using UnityEngine;
 public class GameLogic 
 {
     public static poemDataGenerate currentPoemData;
-    static DataTable s_poemdata;
 
     public static string[] m_questions = new string[4];
     public static float m_time;
@@ -27,22 +26,27 @@ public class GameLogic
     public static int Score
     {
         get { return GameLogic.s_score; }
-        set { GameLogic.s_score = value;
+        set
+        {
+            GameLogic.s_score = value;
 
-        if (s_score <0)
+            if (s_score < 0)
             {
                 s_score = 0;
             }
-        GlobalEvent.DispatchEvent(GameEventEnum.ScoreChange);
+            GlobalEvent.DispatchEvent(GameEventEnum.ScoreChange);
         }
     }
+
     static int s_hp = 0;
 
     public static int HP
     {
         get { return GameLogic.s_hp; }
-        set { GameLogic.s_hp = value;
-        GlobalEvent.DispatchEvent(GameEventEnum.HpChange);
+        set
+        {
+            GameLogic.s_hp = value;
+            GlobalEvent.DispatchEvent(GameEventEnum.HpChange);
         }
     }
 
@@ -51,12 +55,8 @@ public class GameLogic
         s_score = 0;
         s_comboCount = 0;
         s_questionTime = Time.time;
-        s_poemdata = DataManager.GetData("poemData");
 
-        int random = RandomService.GetRand(0, s_poemdata.TableIDs.Count);
-        string poemID = s_poemdata.TableIDs[random];
-
-        currentPoemData = DataGenerateManager<poemDataGenerate>.GetData(poemID);
+        currentPoemData = PoemLibrary.GetRandomPoem();
 
         s_currentLine = 2;
 

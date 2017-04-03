@@ -57,6 +57,7 @@ public class GameOneMainMenuWindow : UIWindowBase
 
     void OnClickNormalModel(InputUIOnClickEvent e)
     {
+        PoemLibrary.SetPoemByAllPoem();
         ApplicationStatusManager.EnterStatus<GameStatus>();
     }
 

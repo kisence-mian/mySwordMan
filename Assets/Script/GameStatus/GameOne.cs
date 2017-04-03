@@ -13,7 +13,6 @@ public class GameOne : IApplicationStatus
     {
         m_main = UIManager.OpenUIWindow<GameOneMainMenuWindow>();
         RhythmLibrary.Init();
-        PoemLibrary.Init(null);
         PuzzleService.Init();
     }
 

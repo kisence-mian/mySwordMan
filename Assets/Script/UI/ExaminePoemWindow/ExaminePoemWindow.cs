@@ -109,7 +109,10 @@ public class ExaminePoemWindow : UIWindowBase
 
     void OnClickExercise(InputUIOnClickEvent e)
     {
+        UIManager.CloseUIWindow(this);
 
+        PoemLibrary.SetPoemByName(s_poemData.m_key);
+        ApplicationStatusManager.EnterStatus<GameStatus>();
     }
 
     void OnClickReturn(InputUIOnClickEvent e)

@@ -14,6 +14,7 @@ public class FavoriteWindow : UIWindowBase
     public override void OnOpen()
     {
         AddOnClickListener("Button_return", OnClickReturn);
+        AddOnClickListener("Button_exercise", OnClickExercise);
         SetData();
     }
 
@@ -63,8 +64,9 @@ public class FavoriteWindow : UIWindowBase
         ApplicationStatusManager.EnterStatus<MainMenuState>();
     }
 
-    void OnClickItem()
+    void OnClickExercise(InputUIOnClickEvent e)
     {
-
+        PoemLibrary.SetPoemByFavorite(FavoritesService.GetFavoritesList());
+        ApplicationStatusManager.EnterStatus<GameStatus>();
     }
 }

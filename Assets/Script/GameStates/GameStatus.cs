@@ -10,7 +10,6 @@ public class GameStatus : IApplicationStatus
         if (!isInit)
         {
             RhythmLibrary.Init();
-            PoemLibrary.Init(null);
             PuzzleService.Init();
         }
 
