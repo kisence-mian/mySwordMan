@@ -1,0 +1,9 @@
+key	value
+default	NoValue
+StartGame	开始游戏
+MyFavoite	我的收藏
+Finsih	完成
+Score	得分
+ExaminePoem	查看全诗
+TryAgain	再来一次
+BackMenu	回主菜单
