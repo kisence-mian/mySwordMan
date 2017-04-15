@@ -1,0 +1,21 @@
+key	value
+default	NoValue
+StartGame	Start Game
+MyFavoite	MyFavotite
+Finsih	Finish
+Score	Score
+ExaminePoem	Examine Poem
+TryAgain	Try Again
+BackMenu	Back Menu
+bad	Bad
+normal	Normal
+good	Good
+nice	Nice
+perfect	Perfact
+score	Score:{0}
+combo	Combo:{0}
+Exercise	Exercise
+Back	Back
+AddToFavorites	Add To Favorite
+RemoveTheFavorite	Remove The Favorite
+HundredPoemHit	Hundred Poem Hit

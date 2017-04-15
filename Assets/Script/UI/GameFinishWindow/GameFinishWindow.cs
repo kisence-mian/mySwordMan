@@ -7,7 +7,7 @@ public class GameFinishWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnOpen()
     {
-        SetText("Text_score","得分：" +GameLogic.Score);
+        SetText("Text_score",LanguageManager.GetContent( "score" ,GameLogic.Score));
         GetRectTransform("Text_score").anchoredPosition3D = new Vector3(500, -100, 0);
 
         AddOnClickListener("Button_again", OnClickAgain);

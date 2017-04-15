@@ -39,6 +39,11 @@ public class PoemItem :PoolObject
             m_text.color = Color.black;
         }
 
+        //if(LanguageManager.s_currentLanguage == SystemLanguage.ChineseTraditional)
+        //{
+        //    content = ZhConverter.Convert(content, ZhConverter.To.Traditional);
+        //}
+        
         m_text.text = content;
     }
 

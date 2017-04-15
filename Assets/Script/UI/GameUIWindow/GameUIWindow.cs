@@ -21,7 +21,7 @@ public class GameUIWindow : UIWindowBase
         AddOnClickListener("Button_answer3", OnClickAnswer, "3");
         AddOnClickListener("Button_answer4", OnClickAnswer, "4");
 
-        SetText("Text_score", "得分：" + 0);
+        SetText("Text_score", LanguageManager.GetContent("score", 0));
     }
 
     public override void OnClose()
@@ -88,7 +88,7 @@ public class GameUIWindow : UIWindowBase
         //if(GameLogic.c)
         if (GameLogic.ComboCount > 2)
         {
-            SetText("Text_combo", "连击：" + GameLogic.ComboCount);
+            SetText("Text_combo", LanguageManager.GetContent( "combo" , GameLogic.ComboCount));
         }
         else
         {
@@ -103,11 +103,11 @@ public class GameUIWindow : UIWindowBase
     {
         switch(level)
         {
-            case ScoreLevel.bad: return "差";
-            case ScoreLevel.normal: return "一般";
-            case ScoreLevel.good: return "很好";
-            case ScoreLevel.nice: return "极好";
-            case ScoreLevel.perfect: return "完美";
+            case ScoreLevel.bad: return LanguageManager.GetContent("bad");
+            case ScoreLevel.normal: return LanguageManager.GetContent("normal");
+            case ScoreLevel.good: return LanguageManager.GetContent("good");
+            case ScoreLevel.nice: return LanguageManager.GetContent("nice");
+            case ScoreLevel.perfect: return LanguageManager.GetContent("perfect");
             default: return "";
         }
     }
@@ -177,7 +177,7 @@ public class GameUIWindow : UIWindowBase
 
     void ChangeScore(params object[] objs)
     {
-        SetText("Text_score", "得分：" + GameLogic.Score);
+        SetText("Text_score", LanguageManager.GetContent("score",GameLogic.Score));
     }
 
     void ShowScoreLevel(params object[] objs)
@@ -185,10 +185,10 @@ public class GameUIWindow : UIWindowBase
         ShowScoreLevel((ScoreLevel)objs[0]);
     }
 
-    void ChangeHP(params object[] objs)
-    {
-        SetText("Text_score", "得分：" + GameLogic.Score);
-    }
+    //void ChangeHP(params object[] objs)
+    //{
+    //    SetText("Text_score", "得分：" + GameLogic.Score);
+    //}
 
     void AddSpace(params object[] objs)
     {

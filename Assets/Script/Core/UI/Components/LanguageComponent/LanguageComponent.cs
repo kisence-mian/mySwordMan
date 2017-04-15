@@ -15,15 +15,23 @@ public class LanguageComponent : MonoBehaviour
         {
             m_text = GetComponent<Text>();
         }
+
+        Init();
     }
 
     public void Init()
     {
-        SetLanguage();
+        GlobalEvent.AddEvent(LanguageEventEnum.LanguageChange, ReceviceLanguageChange);
+        ResetLanguage();
     }
 
-    public void SetLanguage()
+    public void ResetLanguage()
     {
         m_text.text = LanguageManager.GetContent(m_languageID);
+    }
+
+    void ReceviceLanguageChange(params object[] objs)
+    {
+        ResetLanguage();
     }
 }

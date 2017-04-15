@@ -129,6 +129,14 @@ public class GameLogic
         m_questions[GetRandomIndex(false)] = PuzzleService.GetErrorAnswer(GetCurrentContent());
         m_questions[GetRandomIndex(false)] = PuzzleService.GetErrorAnswer(GetCurrentContent());
 
+        if(LanguageManager.s_currentLanguage == SystemLanguage.ChineseTraditional)
+        {
+            m_questions[0] = ZhConverter.Convert(m_questions[0], ZhConverter.To.Traditional);
+            m_questions[1] = ZhConverter.Convert(m_questions[1], ZhConverter.To.Traditional);
+            m_questions[2] = ZhConverter.Convert(m_questions[2], ZhConverter.To.Traditional);
+            m_questions[3] = ZhConverter.Convert(m_questions[3], ZhConverter.To.Traditional);
+        }
+
         GlobalEvent.DispatchEvent(GameEventEnum.QuestionChange);
     }
 

@@ -7,3 +7,15 @@ Score	得分
 ExaminePoem	查看全诗
 TryAgain	再来一次
 BackMenu	回主菜单
+bad	差
+normal	一般
+good	很好
+nice	极好
+perfect	完美
+score	得分：{0}
+combo	连击：{0}
+Back	返回
+Exercise	练习
+AddToFavorites	加入收藏
+RemoveTheFavorite	移除收藏
+HundredPoemHit	百诗斩
