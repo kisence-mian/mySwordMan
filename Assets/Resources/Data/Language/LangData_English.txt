@@ -1,4 +1,4 @@
-key	value
+﻿key	value
 default	NoValue
 StartGame	Start Game
 MyFavoite	MyFavotite
@@ -19,3 +19,12 @@ Back	Back
 AddToFavorites	Add To Favorite
 RemoveTheFavorite	Remove The Favorite
 HundredPoemHit	Hundred Poem Hit
+return	Back
+option	Option
+difficulty	Difficulty
+PoemLibrary	Poem Library
+language	Language
+easy	Easy
+hard	Hard
+songci	Poetry Of The Song Dynast
+tangshi	Poetry Of The Tang Dynasty

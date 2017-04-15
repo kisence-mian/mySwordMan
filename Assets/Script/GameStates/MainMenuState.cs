@@ -16,6 +16,8 @@ public class MainMenuState : IApplicationStatus
             SDKManager.LoadAD(ADType.Banner);
             SDKManager.LoadAD(ADType.Interstitial);
 
+            GameOptionService.Init();
+
             FavoritesService.Init();
             PoemLibrary.Init();
 

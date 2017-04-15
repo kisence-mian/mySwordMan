@@ -99,7 +99,7 @@ public class ExaminePoemWindow : UIWindowBase
     {
         if(FavoritesService.GetIsFavorites(s_poemData.m_key))
         {
-            SetText("Text_FavoriteSwitch", LanguageManager.GetContent("AddToFavorite"));
+            SetText("Text_FavoriteSwitch", LanguageManager.GetContent("AddToFavorites"));
         }
         else
         {

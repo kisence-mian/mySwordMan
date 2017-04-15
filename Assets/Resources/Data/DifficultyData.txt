@@ -1,0 +1,3 @@
+﻿DifficultyLevel
+normal
+hard

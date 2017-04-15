@@ -1,4 +1,4 @@
-key	value
+﻿key	value
 default	NoValue
 StartGame	开始游戏
 MyFavoite	我的收藏
@@ -19,3 +19,12 @@ Exercise	练习
 AddToFavorites	加入收藏
 RemoveTheFavorite	移除收藏
 HundredPoemHit	百诗斩
+return	返回
+option	设置
+difficulty	难度
+PoemLibrary	诗库
+language	语言
+easy	简单
+hard	困难
+songci	宋词
+tangshi	唐诗

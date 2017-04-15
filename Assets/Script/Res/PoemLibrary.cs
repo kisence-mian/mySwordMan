@@ -40,9 +40,36 @@ public class PoemLibrary
         }
     }
 
-    public static void SetPoemByTag(List<string> tags)
+    public static void SetPoemByTag(List<string> difficultys,List<string> poemTypes)
     {
+        s_poemList.Clear();
 
+        for (int j = 0; j < s_poemdata.TableIDs.Count; j++)
+        {
+            string id = s_poemdata.TableIDs[j];
+
+            for (int i = 0; i < difficultys.Count; i++)
+            {
+                bool isBreak = false;
+                if (id.Contains(difficultys[i]))
+                {
+                    for (int k = 0; k < poemTypes.Count; k++)
+                    {
+                        if (id.Contains(poemTypes[k]))
+                        {
+                            s_poemList.Add(DataGenerateManager<poemDataGenerate>.GetData(id));
+                            isBreak = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(isBreak)
+                {
+                    break;
+                }
+            }
+        }
     }
 
     public static poemDataGenerate GetRandomPoem()

@@ -52,6 +52,11 @@ public class FavoriteWindow : UIWindowBase
     //UI的进入动画
     public override IEnumerator EnterAnim(UIAnimCallBack l_animComplete, UICallBack l_callBack, params object[] objs)
     {
+        m_uiRoot.SetActive(false);
+
+        yield return new WaitForSeconds(0.5f);
+        m_uiRoot.SetActive(true);
+
         AnimSystem.UguiAlpha(gameObject, 0, 1, callBack:(object[] obj)=>
         {
             StartCoroutine(base.EnterAnim(l_animComplete, l_callBack, objs));

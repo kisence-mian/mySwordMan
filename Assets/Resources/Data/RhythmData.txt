@@ -1,4 +1,4 @@
-rhythmName	Content
+﻿rhythmName	Content
 type	String
 note	内容
 default	
