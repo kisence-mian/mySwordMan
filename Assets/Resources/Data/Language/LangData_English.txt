@@ -1,4 +1,4 @@
-﻿key	value
+key	value
 default	NoValue
 StartGame	Start Game
 MyFavoite	MyFavotite
@@ -24,7 +24,7 @@ option	Option
 difficulty	Difficulty
 PoemLibrary	Poem Library
 language	Language
-easy	Easy
-hard	Hard
+easy	Familiar
+hard	Rare
 songci	Poetry Of The Song Dynast
 tangshi	Poetry Of The Tang Dynasty

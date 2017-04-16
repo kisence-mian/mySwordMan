@@ -1,4 +1,4 @@
-﻿key	value
+key	value
 default	NoValue
 StartGame	开始游戏
 MyFavoite	我的收藏
@@ -24,7 +24,7 @@ option	设置
 difficulty	难度
 PoemLibrary	诗库
 language	语言
-easy	简单
-hard	困难
+easy	耳熟能详
+hard	略微生僻
 songci	宋词
 tangshi	唐诗

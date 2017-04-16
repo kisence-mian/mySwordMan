@@ -61,7 +61,6 @@ public class GameOptionService
         }
         RecordManager.SaveData(c_difficultyRecordKey, difficulty);
 
-
         RecordTable poemTypes = new RecordTable();
         for (int i = 0; i < s_poemTypes.Count; i++)
         {
@@ -70,16 +69,45 @@ public class GameOptionService
         RecordManager.SaveData(c_poemTypesKey, poemTypes);
     }
 
-    public static List<string> GetTags()
+    public static void AddPoemType(string poemType)
     {
-        List<string> tags = new List<string>();
-
-        tags.AddRange(s_difficultyLevels);
-        tags.AddRange(s_poemTypes);
-
-        return tags;
+        if(!s_poemTypes.Contains(poemType))
+        {
+            s_poemTypes.Add(poemType);
+            GlobalEvent.DispatchEvent(GameOptionEventEnum.PoemLibChange);
+            SaveOption();
+        }
     }
 
+    public static void RemovePoemType(string poemType)
+    {
+        if (s_poemTypes.Contains(poemType) && s_poemTypes.Count > 1)
+        {
+            s_poemTypes.Remove(poemType);
+            GlobalEvent.DispatchEvent(GameOptionEventEnum.PoemLibChange);
+            SaveOption();
+        }
+    }
+
+    public static void AddDifficulty(string difficulty)
+    {
+        if (!DifficultyLevels.Contains(difficulty))
+        {
+            DifficultyLevels.Add(difficulty);
+            GlobalEvent.DispatchEvent(GameOptionEventEnum.DifficultyChange);
+            SaveOption();
+        }
+    }
+
+    public static void RemoveDifficulty(string difficulty)
+    {
+        if (DifficultyLevels.Contains(difficulty) && DifficultyLevels.Count > 1)
+        {
+            DifficultyLevels.Remove(difficulty);
+            GlobalEvent.DispatchEvent(GameOptionEventEnum.DifficultyChange);
+            SaveOption();
+        }
+    }
 }
 
 public enum GameOptionEventEnum

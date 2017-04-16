@@ -31,14 +31,13 @@ public class LanguageComponmentEditor : Editor
 
         m_languageList = LanguageDataEditorWindow.GetLanguageKeyList().ToArray();
 
-        if (m_currentSelectIndex == 0 && m_lc.m_text != null)
+        if (m_currentSelectIndex == 0)
         {
-            m_currentSelectIndex = GetIndex(m_lc.m_text.text);
+            m_currentSelectIndex = GetIndex(m_lc.m_languageID);
         }
 
         m_currentSelectIndex = EditorGUILayout.Popup("当前内容：", m_currentSelectIndex, m_languageList);
         m_lc.m_languageID = m_languageList[m_currentSelectIndex];
-
 
         base.OnInspectorGUI();
     }
