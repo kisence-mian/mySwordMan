@@ -7,7 +7,18 @@ public class GameFinishWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnOpen()
     {
+        SetText("Text_finish", GetGameLevelString(GameLogic.GetGameLevel()));
         SetText("Text_score",LanguageManager.GetContent( "score" ,GameLogic.Score));
+
+        if(GameLogic.GetIsFullCombo())
+        {
+            SetText("Text_combo", LanguageManager.GetContent("fullCombo"));
+        }
+        else
+        {
+            SetText("Text_combo", LanguageManager.GetContent("maxCombo", GameLogic.MaxCombo,GameLogic.GetTotalLine()));
+        }
+
         GetRectTransform("Text_score").anchoredPosition3D = new Vector3(500, -100, 0);
 
         AddOnClickListener("Button_again", OnClickAgain);
@@ -30,6 +41,7 @@ public class GameFinishWindow : UIWindowBase
         SetActive("Button_back", false);
         SetActive("Text_finish", false);
         SetActive("Text_score", false);
+        SetActive("Text_combo", false);
         SetActive("Button_read", false);
         SetActive("Button_favorites", false);
 
@@ -43,7 +55,9 @@ public class GameFinishWindow : UIWindowBase
 
         yield return new WaitForSeconds(0.5f);
         SetActive("Text_score", true);
-        AnimSystem.UguiMove(GetGameObject("Text_score"), new Vector3(500, -100, 0), new Vector3(218, -100, 0), interp: InterpType.OutCubic);
+        SetActive("Text_combo", true);
+        AnimSystem.UguiMove(GetGameObject("Text_score"), new Vector3(500, -180, 0), new Vector3(0, -180, 0), interp: InterpType.OutCubic);
+        AnimSystem.UguiMove(GetGameObject("Text_combo"), new Vector3(500, -140, 0), new Vector3(0, -140, 0), interp: InterpType.OutCubic,delayTime:0.2f);
 
         yield return new WaitForSeconds(0.5f);
         SetActive("Button_again", true);
@@ -68,6 +82,18 @@ public class GameFinishWindow : UIWindowBase
         //}
 
         yield return base.EnterAnim(l_animComplete, l_callBack, objs);
+    }
+
+    public string GetGameLevelString(GameLevel level)
+    {
+        switch(level)
+        {
+            case GameLevel.unfinish: return LanguageManager.GetContent("unfinish");
+            case GameLevel.finish: return LanguageManager.GetContent("finsih");
+            case GameLevel.nice: return LanguageManager.GetContent("GameNice");
+            case GameLevel.perfect: return LanguageManager.GetContent("GamePerfect");
+            default :return "";
+        }
     }
 
     public override void OnCompleteEnterAnim()

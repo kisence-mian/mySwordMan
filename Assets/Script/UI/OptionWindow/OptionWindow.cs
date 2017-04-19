@@ -88,16 +88,19 @@ public class OptionWindow : UIWindowBase
     void OnClickSimplified(InputUIOnClickEvent e)
     {
         LanguageManager.SetLanguage(SystemLanguage.ChineseSimplified);
+        GameOptionService.SaveOption();
     }
 
     void OnClickTraditional(InputUIOnClickEvent e)
     {
         LanguageManager.SetLanguage(SystemLanguage.ChineseTraditional);
+        GameOptionService.SaveOption();
     }
 
     void OnClickEnglish(InputUIOnClickEvent e)
     {
         LanguageManager.SetLanguage(SystemLanguage.English);
+        GameOptionService.SaveOption();
     }
 
     void OnClickDifficult(InputUIOnClickEvent e)

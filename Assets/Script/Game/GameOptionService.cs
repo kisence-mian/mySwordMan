@@ -20,7 +20,10 @@ public class GameOptionService
     }
 
     const string c_difficultyRecordKey = "DifficultyRecord";
-    const string c_poemTypesKey = "PoemTypes";
+    const string c_poemTypesKey = "PoemTypesRecord";
+    const string c_langeuageRecord = "LanguageRecord";
+
+    const string c_langeuageKey = "Language";
 
     public static void Init()
     {
@@ -50,9 +53,14 @@ public class GameOptionService
         {
             s_poemTypes.Add("songci");
         }
+
+        RecordTable langeConfig = RecordManager.GetData(c_langeuageRecord);
+
+        SystemLanguage langeType = langeConfig.GetEnumRecord<SystemLanguage>(c_langeuageKey, Application.systemLanguage);
+        LanguageManager.SetLanguage(langeType);
     }
 
-    static void SaveOption()
+    public static void SaveOption()
     {
         RecordTable difficulty = new RecordTable();
         for (int i = 0; i < s_difficultyLevels.Count; i++)
@@ -67,6 +75,10 @@ public class GameOptionService
             poemTypes.SetRecord(s_poemTypes[i], "");
         }
         RecordManager.SaveData(c_poemTypesKey, poemTypes);
+
+        RecordTable langeConfig = new RecordTable();
+        langeConfig.SetEnumRecord(c_langeuageKey, LanguageManager.s_currentLanguage);
+        RecordManager.SaveData(c_langeuageRecord, langeConfig);
     }
 
     public static void AddPoemType(string poemType)

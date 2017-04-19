@@ -21,7 +21,7 @@ public class MainMenuState : IApplicationStatus
             FavoritesService.Init();
             PoemLibrary.Init();
 
-            LanguageManager.SetLanguage(SystemLanguage.ChineseTraditional);
+            //LanguageManager.SetLanguage(SystemLanguage.ChineseTraditional);
         }
 
         OpenUI<GameOneMainMenuWindow>();

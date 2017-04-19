@@ -16,6 +16,13 @@ public class GameLogic
     static int s_comboCount = 0;
 
     static float s_questionTime = 0;
+    static int s_maxCombo = 0;
+
+    public static int MaxCombo
+    {
+        get { return GameLogic.s_maxCombo; }
+        //set { GameLogic.s_maxCombo = value; }
+    }
 
     public static int ComboCount
     {
@@ -50,8 +57,43 @@ public class GameLogic
         }
     }
 
+    public static int GetTotalLine()
+    {
+        int line = 0;
+        for (int i = 0; i < currentPoemData.m_content.Length; i++)
+        {
+            if(!currentPoemData.m_content[i].Contains("space"))
+            {
+                line++;
+            }
+        }
+
+        return line - 2;
+    }
+
+    public static int GetTotalScore()
+    {
+        int totalCombo = GetTotalLine();
+        int totalScore = totalCombo * (totalCombo + 1) / 2;
+
+        totalScore *= 50;
+
+        return totalScore;
+    }
+
+    public static bool GetIsFullCombo()
+    {
+        return s_comboCount == GetTotalLine();
+    }
+
+    public static GameLevel GetGameLevel()
+    {
+        return GameLevel.perfect;
+    }
+
     public static void Init()
     {
+        s_maxCombo = 0;
         s_score = 0;
         s_comboCount = 0;
         s_questionTime = Time.time;
@@ -153,6 +195,11 @@ public class GameLogic
         {
             ComboCount++;
 
+            if(ComboCount > s_maxCombo)
+            {
+                s_maxCombo = ComboCount;
+            }
+
             float useTime = Time.time - s_questionTime;
             int scoreTmp = 0;
 
@@ -224,6 +271,14 @@ enum ScoreLevel
     bad,
     normal,
     good,
+    nice,
+    perfect,
+}
+
+public enum GameLevel
+{
+    unfinish,
+    finish,
     nice,
     perfect,
 }
