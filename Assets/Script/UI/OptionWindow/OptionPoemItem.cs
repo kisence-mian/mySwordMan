@@ -34,7 +34,7 @@ public class OptionPoemItem : ReusingScrollItemBase
 
     void ResetText()
     {
-        SetText("Text_content", LanguageManager.GetContent(m_poemLib));
+        SetText("Text_content", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, m_poemLib));
     }
 
     void ResetToggle()

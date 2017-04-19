@@ -21,6 +21,8 @@ public class MainMenuState : IApplicationStatus
             FavoritesService.Init();
             PoemLibrary.Init();
 
+            LanguageManager.Init();
+
             //LanguageManager.SetLanguage(SystemLanguage.ChineseTraditional);
         }
 

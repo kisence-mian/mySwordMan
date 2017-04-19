@@ -30,3 +30,9 @@ songci	Poetry Of The Song Dynast
 tangshi	Poetry Of The Tang Dynasty
 maxCombo	Max Combo:{0}/{1}
 fullCombo	Full Combo!
+unfinish	Unfinish
+GameNice	Nice!
+GamePerfect	Perfect!
+GameGood	Good
+GameVeryGood	Very Good
+finish	Finish

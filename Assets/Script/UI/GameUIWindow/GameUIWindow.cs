@@ -12,7 +12,7 @@ public class GameUIWindow : UIWindowBase
     {
         GlobalEvent.AddEvent(GameEventEnum.QuestionChange, UpdateQuestion);
         GlobalEvent.AddEvent(GameEventEnum.CreateSpace, AddSpace);
-        GlobalEvent.AddEvent(GameEventEnum.ScoreChange, ChangeScore);
+        //GlobalEvent.AddEvent(GameEventEnum.ScoreChange, ChangeScore);
 
         GlobalEvent.AddEvent(GameEventEnum.ShowScoreLevel, ShowScoreLevel);
 
@@ -21,14 +21,14 @@ public class GameUIWindow : UIWindowBase
         AddOnClickListener("Button_answer3", OnClickAnswer, "3");
         AddOnClickListener("Button_answer4", OnClickAnswer, "4");
 
-        SetText("Text_score", LanguageManager.GetContent("score", 0));
+        SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", 0));
     }
 
     public override void OnClose()
 {
         GlobalEvent.RemoveEvent(GameEventEnum.QuestionChange, UpdateQuestion);
         GlobalEvent.RemoveEvent(GameEventEnum.CreateSpace, AddSpace);
-        GlobalEvent.RemoveEvent(GameEventEnum.ScoreChange, ChangeScore);
+        //GlobalEvent.RemoveEvent(GameEventEnum.ScoreChange, ChangeScore);
 
         GlobalEvent.RemoveEvent(GameEventEnum.ShowScoreLevel, ShowScoreLevel);
 
@@ -88,7 +88,7 @@ public class GameUIWindow : UIWindowBase
         //if(GameLogic.c)
         if (GameLogic.ComboCount > 2)
         {
-            SetText("Text_combo", LanguageManager.GetContent( "combo" , GameLogic.ComboCount));
+            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "combo", GameLogic.ComboCount));
         }
         else
         {
@@ -103,11 +103,11 @@ public class GameUIWindow : UIWindowBase
     {
         switch(level)
         {
-            case ScoreLevel.bad: return LanguageManager.GetContent("bad");
-            case ScoreLevel.normal: return LanguageManager.GetContent("normal");
-            case ScoreLevel.good: return LanguageManager.GetContent("good");
-            case ScoreLevel.nice: return LanguageManager.GetContent("nice");
-            case ScoreLevel.perfect: return LanguageManager.GetContent("perfect");
+            case ScoreLevel.bad: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "bad");
+            case ScoreLevel.normal: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "normal");
+            case ScoreLevel.good: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "good");
+            case ScoreLevel.nice: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "nice");
+            case ScoreLevel.perfect: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "perfect");
             default: return "";
         }
     }
@@ -175,10 +175,10 @@ public class GameUIWindow : UIWindowBase
         ShowQusetionEnterAnim();
     }
 
-    void ChangeScore(params object[] objs)
-    {
-        SetText("Text_score", LanguageManager.GetContent("score",GameLogic.Score));
-    }
+    //void ChangeScore(params object[] objs)
+    //{
+    //    SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.Score));
+    //}
 
     void ShowScoreLevel(params object[] objs)
     {

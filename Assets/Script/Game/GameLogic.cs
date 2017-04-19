@@ -86,9 +86,48 @@ public class GameLogic
         return s_comboCount == GetTotalLine();
     }
 
+    static float MaxScore = 6000;
+
+    public static int GetScore()
+    {
+        float score = (float)Score / (float)GetTotalScore();
+
+        return (int)(score * MaxScore);
+    }
+
     public static GameLevel GetGameLevel()
     {
-        return GameLevel.perfect;
+        int tmp = GetScore();
+
+        Debug.Log("Level: " + tmp);
+
+        if (tmp < 0.1f * MaxScore)
+        {
+            return GameLevel.unfinish;
+        }
+        else if (tmp < 0.3f * MaxScore)
+        {
+            return GameLevel.finish;
+        }
+
+        else if (tmp < 0.5f * MaxScore)
+        {
+            return GameLevel.Good;
+        }
+
+        else if (tmp < 0.7f * MaxScore)
+        {
+            return GameLevel.veryGood;
+        }
+
+        else if (tmp != MaxScore)
+        {
+            return GameLevel.nice;
+        }
+        else
+        {
+            return GameLevel.perfect;
+        }
     }
 
     public static void Init()
@@ -205,24 +244,23 @@ public class GameLogic
 
             ScoreLevel level = ScoreLevel.normal;
 
-            if (useTime < 2)
+            if (useTime < 4)
             {
                 level = ScoreLevel.perfect;
                 scoreTmp = 50;
             }
-            else if(useTime < 4)
+            else if(useTime < 6)
             {
                 level = ScoreLevel.nice;
                 scoreTmp = 20;
             }
-            else if (useTime < 8)
+            else if (useTime < 10)
             {
                 level = ScoreLevel.good;
                 scoreTmp = 10;
             }
             else
             {
-                ComboCount = 0;
                 level = ScoreLevel.normal;
                 scoreTmp = 5;
             }
@@ -279,6 +317,8 @@ public enum GameLevel
 {
     unfinish,
     finish,
+    Good,
+    veryGood,
     nice,
     perfect,
 }

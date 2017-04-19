@@ -8,15 +8,15 @@ public class GameFinishWindow : UIWindowBase
     public override void OnOpen()
     {
         SetText("Text_finish", GetGameLevelString(GameLogic.GetGameLevel()));
-        SetText("Text_score",LanguageManager.GetContent( "score" ,GameLogic.Score));
+        SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.GetScore()));
 
         if(GameLogic.GetIsFullCombo())
         {
-            SetText("Text_combo", LanguageManager.GetContent("fullCombo"));
+            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "fullCombo"));
         }
         else
         {
-            SetText("Text_combo", LanguageManager.GetContent("maxCombo", GameLogic.MaxCombo,GameLogic.GetTotalLine()));
+            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "maxCombo", GameLogic.MaxCombo, GameLogic.GetTotalLine()));
         }
 
         GetRectTransform("Text_score").anchoredPosition3D = new Vector3(500, -100, 0);
@@ -56,8 +56,8 @@ public class GameFinishWindow : UIWindowBase
         yield return new WaitForSeconds(0.5f);
         SetActive("Text_score", true);
         SetActive("Text_combo", true);
-        AnimSystem.UguiMove(GetGameObject("Text_score"), new Vector3(500, -180, 0), new Vector3(0, -180, 0), interp: InterpType.OutCubic);
-        AnimSystem.UguiMove(GetGameObject("Text_combo"), new Vector3(500, -140, 0), new Vector3(0, -140, 0), interp: InterpType.OutCubic,delayTime:0.2f);
+        AnimSystem.UguiMove(GetGameObject("Text_score"), new Vector3(500, -180, 0), new Vector3(-20, -180, 0), interp: InterpType.OutCubic);
+        AnimSystem.UguiMove(GetGameObject("Text_combo"), new Vector3(500, -140, 0), new Vector3(-20, -140, 0), interp: InterpType.OutCubic,delayTime:0.2f);
 
         yield return new WaitForSeconds(0.5f);
         SetActive("Button_again", true);
@@ -88,10 +88,12 @@ public class GameFinishWindow : UIWindowBase
     {
         switch(level)
         {
-            case GameLevel.unfinish: return LanguageManager.GetContent("unfinish");
-            case GameLevel.finish: return LanguageManager.GetContent("finsih");
-            case GameLevel.nice: return LanguageManager.GetContent("GameNice");
-            case GameLevel.perfect: return LanguageManager.GetContent("GamePerfect");
+            case GameLevel.unfinish: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "unfinish");
+            case GameLevel.finish: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "finish");
+            case GameLevel.Good: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "GameGood");
+            case GameLevel.veryGood: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "GameVeryGood");
+            case GameLevel.nice: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "GameNice");
+            case GameLevel.perfect: return LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "GamePerfect");
             default :return "";
         }
     }
