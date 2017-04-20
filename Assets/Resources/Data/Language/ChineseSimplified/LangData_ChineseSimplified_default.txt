@@ -1,4 +1,4 @@
-﻿key	value
+key	value
 default	NoValue
 StartGame	开始游戏
 MyFavoite	我的收藏

@@ -1,0 +1,11 @@
+key	value
+default	NoValue
+NoUpdate	No Update
+NeedUpdateApplication	Need Update APK
+VersionFileDownLoadFail	Version File DownLoad Fail
+Md5FileDownLoadFail	MD5 File DownLoad Fail
+UpdateFail	Update Fail
+UpdateSuccess	Update Success
+DownLoadingVersionFile	DownLoading Version File
+DownLoadingMd5File	DownLoading MD5 File
+Updating	Updating

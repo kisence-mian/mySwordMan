@@ -1,4 +1,4 @@
-﻿key	value
+key	value
 default	NoValue
 StartGame	Start Game
 MyFavoite	MyFavotite

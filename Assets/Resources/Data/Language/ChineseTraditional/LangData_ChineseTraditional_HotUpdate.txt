@@ -1,0 +1,11 @@
+key	value
+default	NoValue
+NoUpdate	無需更新
+NeedUpdateApplication	需要整包更新
+VersionFileDownLoadFail	版本文件下載失敗
+Md5FileDownLoadFail	MD5文件下載失敗
+UpdateFail	更新失敗
+UpdateSuccess	更新成功
+DownLoadingVersionFile	下載版本文件中
+DownLoadingMd5File	下載MD5文件中
+Updating	更新中

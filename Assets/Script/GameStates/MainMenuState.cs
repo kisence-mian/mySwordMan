@@ -7,25 +7,6 @@ public class MainMenuState : IApplicationStatus
 
     public override void OnEnterStatus()
     {
-        if (!isInit)
-        {
-            isInit = true;
-
-            SDKManager.Init();
-
-            SDKManager.LoadAD(ADType.Banner);
-            SDKManager.LoadAD(ADType.Interstitial);
-
-            GameOptionService.Init();
-
-            FavoritesService.Init();
-            PoemLibrary.Init();
-
-            LanguageManager.Init();
-
-            //LanguageManager.SetLanguage(SystemLanguage.ChineseTraditional);
-        }
-
         OpenUI<GameOneMainMenuWindow>();
     }
 }
