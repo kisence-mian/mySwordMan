@@ -14,8 +14,17 @@ public class FavoriteItem : ReusingScrollItemBase
     {
         m_poemData = (poemDataGenerate)data["poemData"];
 
-        SetText("Text_poemName", m_poemData.m_poemName);
-        SetText("Text_author", m_poemData.m_author);
+        if(LanguageManager.s_currentLanguage == SystemLanguage.ChineseTraditional)
+        {
+            SetText("Text_poemName", ZhConverter.Convert(m_poemData.m_poemName, ZhConverter.To.Traditional));
+            SetText("Text_author", ZhConverter.Convert(m_poemData.m_author, ZhConverter.To.Traditional));
+        }
+        else
+        {
+            SetText("Text_poemName", m_poemData.m_poemName);
+            SetText("Text_author", m_poemData.m_author);
+        }
+
     }
 
     void OnClickCallBack(InputUIOnClickEvent e)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameFinishWindow : UIWindowBase 
 {
@@ -7,6 +8,13 @@ public class GameFinishWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnOpen()
     {
+        Dictionary<string, object> data = new Dictionary<string, object>();
+        data.Add("Score", GameLogic.GetScore());
+        data.Add("Poem", GameLogic.currentPoemData.m_poemName);
+        data.Add("PoemID", GameLogic.currentPoemData.m_key);
+
+        SDKManager.Log("FinishGame", data);
+
         SetText("Text_finish", GetGameLevelString(GameLogic.GetGameLevel()));
         SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.GetScore()));
 

@@ -9,4 +9,14 @@ public class OptionState : IApplicationStatus
     {
         OpenUI<OptionWindow>();
     }
+
+    public override void OnUpdate()
+    {
+        if (Application.platform == RuntimePlatform.Android
+            && (Input.GetKeyDown(KeyCode.Escape))
+            || Input.GetKeyDown(KeyCode.Q))
+        {
+            ApplicationStatusManager.EnterStatus<MainMenuState>();
+        }
+    }
 }

@@ -8,4 +8,5 @@ public class ExamineStatus : IApplicationStatus
     {
         OpenUI<ExaminePoemWindow>();
     }
+
 }

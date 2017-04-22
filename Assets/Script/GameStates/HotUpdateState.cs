@@ -18,6 +18,8 @@ public class HotUpdateState : IApplicationStatus
         LanguageManager.Init();
         GameOptionService.Init();
 
+        SDKManager.Log("LaunchGame", null);
+
         m_window = UIManager.OpenUIWindow<HotUpdateWindow>();
 
         HotUpdateManager.StartHotUpdate(ReceviceHotUpdateProgress);

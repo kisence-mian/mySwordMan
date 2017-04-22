@@ -14,7 +14,15 @@ public class ExainePoemItem : ReusingScrollItemBase
         }
         else
         {
-            SetText("Text", content);
+            if(LanguageManager.s_currentLanguage == SystemLanguage.ChineseTraditional)
+            {
+                SetText("Text", ZhConverter.Convert( content,ZhConverter.To.Traditional));
+            }
+            else
+            {
+                SetText("Text", content);
+            }
+            
         }
     }
 }

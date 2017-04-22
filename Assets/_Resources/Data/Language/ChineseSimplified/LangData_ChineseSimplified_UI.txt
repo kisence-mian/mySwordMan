@@ -1,0 +1,3 @@
+key	value
+default	NoValue
+QuitTips	再按一次返回键退出应用

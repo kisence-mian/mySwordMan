@@ -78,6 +78,13 @@ public class FavoriteWindow : UIWindowBase
 
     void OnClickExercise(InputUIOnClickEvent e)
     {
+        Dictionary<string, object> data = new Dictionary<string, object>();
+        data.Add("GameType", "FavoritesList");
+        data.Add("FavoritesListCount", FavoritesService.GetFavoritesList().Count);
+        SDKManager.Log("StartGame", data);
+
+        UIManager.CloseUIWindow(this);
+
         PoemLibrary.SetPoemByFavorite(FavoritesService.GetFavoritesList());
         ApplicationStatusManager.EnterStatus<GameStatus>();
     }

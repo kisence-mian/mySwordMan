@@ -11,6 +11,13 @@ public class ExaminePoemWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnInit()
     {
+        Dictionary<string,object> data = new Dictionary<string,object>();
+
+        data.Add("PoemKey", s_poemData.m_key);
+        data.Add("PoemName", s_poemData.m_poemName);
+
+        SDKManager.Log("ExaminePoem", data);
+
         GetReusingScrollRect("ScrollRect").Init(UIEventKey, "ExainePoemItem");
     }
 
@@ -109,6 +116,11 @@ public class ExaminePoemWindow : UIWindowBase
 
     void OnClickExercise(InputUIOnClickEvent e)
     {
+        Dictionary<string, object> data = new Dictionary<string, object>();
+        data.Add("GameType", "singlePoem");
+        data.Add("poemName", s_poemData.m_key);
+        SDKManager.Log("StartGame", data);
+
         UIManager.CloseUIWindow(this);
 
         PoemLibrary.SetPoemByName(s_poemData.m_key);
@@ -119,5 +131,16 @@ public class ExaminePoemWindow : UIWindowBase
     {
         UIManager.ShowOtherUI("ExaminePoemWindow");
         UIManager.CloseUIWindow(this);
+    }
+
+    public void Update()
+    {
+        if (Application.platform == RuntimePlatform.Android
+            && (Input.GetKeyDown(KeyCode.Escape))
+            || Input.GetKeyDown(KeyCode.Q))
+        {
+            UIManager.ShowOtherUI("ExaminePoemWindow");
+            UIManager.CloseUIWindow(this);
+        }
     }
 }
