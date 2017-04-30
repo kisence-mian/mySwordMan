@@ -3,3 +3,4 @@ default	NoValue
 QuitTips	Press again to exit the application
 NormalModel	Standard mode
 ArcadeModel	Arcade mode
+HP	HP:{0}

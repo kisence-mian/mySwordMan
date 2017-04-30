@@ -94,43 +94,84 @@ public class GameLogic
 
     public static int GetScore()
     {
-        float score = (float)Score / (float)GetTotalScore();
+        if (s_GameModel == GameModel.normal)
+        {
+            float score = (float)Score / (float)GetTotalScore();
 
-        return (int)(score * MaxScore);
+            return (int)(score * MaxScore);
+        }
+        else
+        {
+            return s_score;
+        }
     }
 
     public static GameLevel GetGameLevel()
     {
-        int tmp = GetScore();
-
-        Debug.Log("Level: " + tmp);
-
-        if (tmp < 0.1f * MaxScore)
+        if (s_GameModel == GameModel.normal)
         {
-            return GameLevel.unfinish;
-        }
-        else if (tmp < 0.3f * MaxScore)
-        {
-            return GameLevel.finish;
-        }
 
-        else if (tmp < 0.5f * MaxScore)
-        {
-            return GameLevel.Good;
-        }
+            int tmp = GetScore();
 
-        else if (tmp < 0.7f * MaxScore)
-        {
-            return GameLevel.veryGood;
-        }
+            if (tmp < 0.1f * MaxScore)
+            {
+                return GameLevel.unfinish;
+            }
+            else if (tmp < 0.3f * MaxScore)
+            {
+                return GameLevel.finish;
+            }
 
-        else if (tmp != MaxScore)
-        {
-            return GameLevel.nice;
+            else if (tmp < 0.5f * MaxScore)
+            {
+                return GameLevel.Good;
+            }
+
+            else if (tmp < 0.7f * MaxScore)
+            {
+                return GameLevel.veryGood;
+            }
+
+            else if (tmp != MaxScore)
+            {
+                return GameLevel.nice;
+            }
+            else
+            {
+                return GameLevel.perfect;
+            }
         }
         else
         {
-            return GameLevel.perfect;
+            int tmp = s_score;
+
+            if (tmp < 500)
+            {
+                return GameLevel.unfinish;
+            }
+            else if (tmp < 2000)
+            {
+                return GameLevel.finish;
+            }
+
+            else if (tmp < 8000)
+            {
+                return GameLevel.Good;
+            }
+
+            else if (tmp < 16000)
+            {
+                return GameLevel.veryGood;
+            }
+
+            else if (tmp < 32000)
+            {
+                return GameLevel.nice;
+            }
+            else
+            {
+                return GameLevel.perfect;
+            }
         }
     }
 
@@ -138,6 +179,7 @@ public class GameLogic
     {
         s_maxCombo = 0;
         s_score = 0;
+        s_hp = s_MaxHp;
         s_comboCount = 0;
         s_questionTime = Time.time;
 
@@ -176,8 +218,8 @@ public class GameLogic
             }
             else
             {
-                GlobalEvent.DispatchEvent(GameEventEnum.NextPoem);
                 NewPoem();
+                GlobalEvent.DispatchEvent(GameEventEnum.NextPoem);
             }
         }
     }
@@ -235,23 +277,40 @@ public class GameLogic
             m_questions[3] = ZhConverter.Convert(m_questions[3], ZhConverter.To.Traditional);
         }
 
+        if(s_GameModel == GameModel.Arcade && HP == 0)
+        {
+            return;
+        }
+
         GlobalEvent.DispatchEvent(GameEventEnum.QuestionChange);
     }
 
     static void LevelJudge(bool isError)
     {
-        if(isError)
+        if (isError)
         {
             ComboCount = 0;
             //Score -= 30;
 
             GlobalEvent.DispatchEvent(GameEventEnum.ShowScoreLevel, ScoreLevel.bad);
+
+            if (s_GameModel == GameModel.Arcade)
+            {
+                HP--;
+
+                GlobalEvent.DispatchEvent(GameEventEnum.ScoreChange);
+
+                if (HP == 0)
+                {
+                    ApplicationStatusManager.GetStatus<GameStatus>().OpenFinishUI();
+                }
+            }
         }
         else
         {
             ComboCount++;
 
-            if(ComboCount > s_maxCombo)
+            if (ComboCount > s_maxCombo)
             {
                 s_maxCombo = ComboCount;
             }
@@ -266,7 +325,7 @@ public class GameLogic
                 level = ScoreLevel.perfect;
                 scoreTmp = 50;
             }
-            else if(useTime < 6)
+            else if (useTime < 6)
             {
                 level = ScoreLevel.nice;
                 scoreTmp = 20;
@@ -285,6 +344,11 @@ public class GameLogic
             Score += ComboCount * scoreTmp;
 
             GlobalEvent.DispatchEvent(GameEventEnum.ShowScoreLevel, level);
+
+            if (s_GameModel == GameModel.Arcade)
+            {
+                GlobalEvent.DispatchEvent(GameEventEnum.ScoreChange);
+            }
         }
     }
 

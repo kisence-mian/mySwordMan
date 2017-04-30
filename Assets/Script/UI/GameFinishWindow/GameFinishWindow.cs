@@ -18,13 +18,20 @@ public class GameFinishWindow : UIWindowBase
         SetText("Text_finish", GetGameLevelString(GameLogic.GetGameLevel()));
         SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.GetScore()));
 
-        if(GameLogic.GetIsFullCombo())
+        if(GameLogic.s_GameModel == GameModel.normal)
         {
-            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "fullCombo"));
+            if (GameLogic.GetIsFullCombo())
+            {
+                SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "fullCombo"));
+            }
+            else
+            {
+                SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "maxCombo", (GameLogic.MaxCombo+"/"+GameLogic.GetTotalLine())));
+            }
         }
         else
         {
-            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "maxCombo", GameLogic.MaxCombo, GameLogic.GetTotalLine()));
+            SetText("Text_combo", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "maxCombo", GameLogic.MaxCombo));
         }
 
         GetRectTransform("Text_score").anchoredPosition3D = new Vector3(500, -100, 0);

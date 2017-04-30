@@ -28,7 +28,7 @@ easy	Familiar
 hard	Rare
 songci	Poetry Of The Song Dynast
 tangshi	Poetry Of The Tang Dynasty
-maxCombo	Max Combo:{0}/{1}
+maxCombo	Max Combo:{0}
 fullCombo	Full Combo!
 unfinish	Unfinish
 GameNice	Nice!

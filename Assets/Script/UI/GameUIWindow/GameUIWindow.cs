@@ -5,12 +5,14 @@ public class GameUIWindow : UIWindowBase
 {
     public List<PoemItem> m_itemList = new List<PoemItem>();
 
-    //UI的初始化请放在这里W
+    //UI的初始化请放在这里
     public override void OnOpen()
     {
         GlobalEvent.AddEvent(GameEventEnum.QuestionChange, UpdateQuestion);
         GlobalEvent.AddEvent(GameEventEnum.CreateSpace, AddSpace);
-        //GlobalEvent.AddEvent(GameEventEnum.ScoreChange, ChangeScore);
+        GlobalEvent.AddEvent(GameEventEnum.NextPoem, NewPoem);
+        GlobalEvent.AddEvent(GameEventEnum.ScoreChange, ChangeScore);
+        GlobalEvent.AddEvent(GameEventEnum.HpChange, ChangeHP);
 
         GlobalEvent.AddEvent(GameEventEnum.ShowScoreLevel, ShowScoreLevel);
 
@@ -19,23 +21,32 @@ public class GameUIWindow : UIWindowBase
         AddOnClickListener("Button_answer3", OnClickAnswer, "3");
         AddOnClickListener("Button_answer4", OnClickAnswer, "4");
 
-        SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", 0));
+        if (GameLogic.s_GameModel == GameModel.Arcade)
+        {
+            SetActive("Text_score", true);
+            SetActive("Text_HP", true);
+
+            ChangeHP();
+            ChangeScore();
+        }
+        else
+        {
+            SetActive("Text_score", false);
+            SetActive("Text_HP", false);
+        }
     }
 
     public override void OnClose()
 {
         GlobalEvent.RemoveEvent(GameEventEnum.QuestionChange, UpdateQuestion);
         GlobalEvent.RemoveEvent(GameEventEnum.CreateSpace, AddSpace);
-        //GlobalEvent.RemoveEvent(GameEventEnum.ScoreChange, ChangeScore);
+        GlobalEvent.RemoveEvent(GameEventEnum.ScoreChange, NewPoem);
+        GlobalEvent.RemoveEvent(GameEventEnum.ScoreChange, ChangeScore);
+        GlobalEvent.RemoveEvent(GameEventEnum.HpChange, ChangeHP);
 
         GlobalEvent.RemoveEvent(GameEventEnum.ShowScoreLevel, ShowScoreLevel);
 
-        for (int i = 0; i < m_itemList.Count; i++)
-        {
-            GameObjectManager.DestroyPoolObject(m_itemList[i]);
-        }
-
-        m_itemList.Clear();
+        CleanPoemItem();
     }
 
     public override void OnCompleteEnterAnim()
@@ -160,6 +171,30 @@ public class GameUIWindow : UIWindowBase
         }
     }
 
+    void CleanPoemItem()
+    {
+        for (int i = 0; i < m_itemList.Count; i++)
+        {
+            GameObjectManager.DestroyPoolObject(m_itemList[i]);
+        }
+
+        m_itemList.Clear();
+    }
+
+    string GetHpContent(int HPCount)
+    {
+        string hpSign = "❤";
+
+        string result = "";
+
+        for (int i = 0; i < HPCount; i++)
+        {
+            result += hpSign;
+        }
+
+        return result;
+    }
+
     #endregion
 
     #region 事件处理
@@ -173,20 +208,20 @@ public class GameUIWindow : UIWindowBase
         ShowQusetionEnterAnim();
     }
 
-    //void ChangeScore(params object[] objs)
-    //{
-    //    SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.Score));
-    //}
+    void ChangeScore(params object[] objs)
+    {
+        SetText("Text_score", LanguageManager.GetContent(LanguageManager.c_defaultModuleKey, "score", GameLogic.Score));
+    }
 
     void ShowScoreLevel(params object[] objs)
     {
         ShowScoreLevel((ScoreLevel)objs[0]);
     }
 
-    //void ChangeHP(params object[] objs)
-    //{
-    //    SetText("Text_score", "得分：" + GameLogic.Score);
-    //}
+    void ChangeHP(params object[] objs)
+    {
+        SetText("Text_HP", LanguageManager.GetContent("UI","HP",GetHpContent(GameLogic.HP)));
+    }
 
     void AddSpace(params object[] objs)
     {
@@ -200,6 +235,13 @@ public class GameUIWindow : UIWindowBase
         CreatePoemItem(GameLogic.GetCurrentContent(), GameLogic.SetAnswer(index), GetRectTransform(e.m_compName).anchoredPosition3D - new Vector3(0, Screen.height / 2, 0));
 
         HideQusetionAnim(index);
+    }
+
+    void NewPoem(params object[] objs)
+    {
+        CleanPoemItem();
+        CreatePoemItem(GameLogic.currentPoemData.m_content[0], false, new Vector3(0, 200, 0));
+        CreatePoemItem(GameLogic.currentPoemData.m_content[1], false, new Vector3(0, 200, 0));
     }
 
     #endregion

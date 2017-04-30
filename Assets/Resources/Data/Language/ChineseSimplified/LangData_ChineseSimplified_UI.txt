@@ -3,3 +3,4 @@ default	NoValue
 QuitTips	再按一次返回键退出应用
 NormalModel	标准模式
 ArcadeModel	街机模式
+HP	生命：{0}

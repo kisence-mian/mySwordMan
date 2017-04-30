@@ -28,7 +28,7 @@ easy	耳熟能詳
 hard	略微生僻
 songci	宋詞
 tangshi	唐詩
-maxCombo	最大連擊數：{0}/{1}
+maxCombo	最大連擊數：{0}
 fullCombo	全部連擊！
 unfinish	未完成
 GameNice	炉火纯青！
