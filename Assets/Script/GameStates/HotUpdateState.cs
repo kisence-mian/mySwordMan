@@ -9,7 +9,7 @@ public class HotUpdateState : IApplicationStatus
     public override void OnEnterStatus()
     {
         SDKManager.Init();
-        SDKManager.LoadAD(ADType.Banner);
+        //SDKManager.LoadAD(ADType.Banner);
         SDKManager.LoadAD(ADType.Interstitial);
 
         FavoritesService.Init();

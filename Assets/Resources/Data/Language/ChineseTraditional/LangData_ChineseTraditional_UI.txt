@@ -1,3 +1,5 @@
 key	value
 default	NoValue
 QuitTips	再按一次返回鍵退出應用
+NormalModel	標準模式
+ArcadeModel	街機模式

@@ -62,29 +62,7 @@ public class GameOneMainMenuWindow : UIWindowBase
 
     void OnClickNormalModel(InputUIOnClickEvent e)
     {
-        Dictionary<string, object> data = new Dictionary<string, object>();
-
-        string difficultys = "";
-        for (int i = 0; i < GameOptionService.DifficultyLevels.Count; i++)
-        {
-            difficultys += "|" + GameOptionService.DifficultyLevels[i];
-        }
-
-        string types = "";
-
-        for (int i = 0; i < GameOptionService.PoemTypes.Count; i++)
-        {
-            types += "|"+GameOptionService.PoemTypes[i];
-        }
-
-        data.Add("GameType", "normal");
-        data.Add("DifficultyLevels", difficultys);
-        data.Add("PoemTypes", types);
-
-        SDKManager.Log("StartGame", data);
-
-        PoemLibrary.SetPoemByTag(GameOptionService.DifficultyLevels, GameOptionService.PoemTypes);
-        ApplicationStatusManager.EnterStatus<GameStatus>();
+        ApplicationStatusManager.EnterStatus<ModelSelectState>();
     }
 
     void OnClickFavorite(InputUIOnClickEvent e)
@@ -98,6 +76,4 @@ public class GameOneMainMenuWindow : UIWindowBase
         SDKManager.Log("OpenOption", null);
         ApplicationStatusManager.EnterStatus<OptionState>();
     }
-
-
 }

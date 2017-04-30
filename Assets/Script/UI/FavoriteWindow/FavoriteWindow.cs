@@ -8,7 +8,7 @@ public class FavoriteWindow : UIWindowBase
     //UI的初始化请放在这里
     public override void OnInit()
     {
-        SDKManager.PlayAD(ADType.Banner);
+        //SDKManager.PlayAD(ADType.Banner);
 
         GetReusingScrollRect("scrollRect").Init(UIEventKey, "FavoriteItem");
     }
@@ -85,6 +85,7 @@ public class FavoriteWindow : UIWindowBase
 
         UIManager.CloseUIWindow(this);
 
+        GameLogic.s_GameModel = GameModel.normal;
         PoemLibrary.SetPoemByFavorite(FavoritesService.GetFavoritesList());
         ApplicationStatusManager.EnterStatus<GameStatus>();
     }

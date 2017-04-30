@@ -1,11 +1,9 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class GameUIWindow : UIWindowBase 
 {
     public List<PoemItem> m_itemList = new List<PoemItem>();
-
 
     //UI的初始化请放在这里W
     public override void OnOpen()

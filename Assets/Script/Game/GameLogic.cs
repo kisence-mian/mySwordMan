@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameLogic 
 {
+    public static GameModel s_GameModel = GameModel.normal;
     public static poemDataGenerate currentPoemData;
 
     public static string[] m_questions = new string[4];
@@ -11,6 +12,9 @@ public class GameLogic
 
     static int s_currentLine = 0;
     static int s_correctIndex = 0;
+
+    static int s_Hp = 3;
+    static int s_MaxHp = 3;
 
     static int s_score = 0;
     static int s_comboCount = 0;
@@ -137,6 +141,11 @@ public class GameLogic
         s_comboCount = 0;
         s_questionTime = Time.time;
 
+        NewPoem();
+    }
+
+    static void NewPoem()
+    {
         currentPoemData = PoemLibrary.GetRandomPoem();
 
         s_currentLine = 2;
@@ -161,7 +170,15 @@ public class GameLogic
         }
         else
         {
-            ApplicationStatusManager.GetStatus<GameStatus>().OpenFinishUI();
+            if(s_GameModel == GameModel.normal)
+            {
+                ApplicationStatusManager.GetStatus<GameStatus>().OpenFinishUI();
+            }
+            else
+            {
+                GlobalEvent.DispatchEvent(GameEventEnum.NextPoem);
+                NewPoem();
+            }
         }
     }
 
@@ -321,4 +338,10 @@ public enum GameLevel
     veryGood,
     nice,
     perfect,
+}
+
+public enum GameModel
+{
+    normal,
+    Arcade,
 }

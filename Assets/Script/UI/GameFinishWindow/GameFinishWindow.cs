@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GameFinishWindow : UIWindowBase 
 {
-
+    static int ADCount = 0;
     //UI的初始化请放在这里
     public override void OnOpen()
     {
@@ -108,7 +108,13 @@ public class GameFinishWindow : UIWindowBase
 
     public override void OnCompleteEnterAnim()
     {
-        SDKManager.PlayAD(ADType.Interstitial);
+        ADCount++;
+        if(ADCount >= 5)
+        {
+            ADCount = 0;
+            SDKManager.PlayAD(ADType.Interstitial);
+        }
+
     }
 
     //UI的退出动画

@@ -123,6 +123,7 @@ public class ExaminePoemWindow : UIWindowBase
 
         UIManager.CloseUIWindow(this);
 
+        GameLogic.s_GameModel = GameModel.normal;
         PoemLibrary.SetPoemByName(s_poemData.m_key);
         ApplicationStatusManager.EnterStatus<GameStatus>();
     }
