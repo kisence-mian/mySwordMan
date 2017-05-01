@@ -183,16 +183,18 @@ public class GameUIWindow : UIWindowBase
 
     string GetHpContent(int HPCount)
     {
-        string hpSign = "❤";
+        //string hpSign = "❤";
 
-        string result = "";
+        //string result = "";
 
-        for (int i = 0; i < HPCount; i++)
-        {
-            result += hpSign;
-        }
+        //for (int i = 0; i < HPCount; i++)
+        //{
+        //    result += hpSign;
+        //}
 
-        return result;
+        //return result;
+
+        return HPCount.ToString();
     }
 
     #endregion
