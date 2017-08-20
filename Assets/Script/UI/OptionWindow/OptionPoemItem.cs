@@ -18,6 +18,8 @@ public class OptionPoemItem : ReusingScrollItemBase
     {
         m_poemLib = data["poemLib"].ToString();
 
+        Debug.Log("m_poemLib " + m_poemLib);
+
         ResetText();
         ResetToggle();
     }

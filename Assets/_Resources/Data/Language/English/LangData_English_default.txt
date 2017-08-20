@@ -36,3 +36,4 @@ GamePerfect	Perfect!
 GameGood	Good
 GameVeryGood	Very Good
 finish	Finish
+xiandaishi	Modern poetry

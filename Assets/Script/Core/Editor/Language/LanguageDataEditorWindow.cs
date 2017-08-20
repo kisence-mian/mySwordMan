@@ -76,7 +76,7 @@ public class LanguageDataEditorWindow : EditorWindow
         s_languageKeyList.Clear();
         s_languageKeyDict.Clear();
 
-        Dictionary<string, object> config = ConfigManager.GetEditorConfigData(c_EditorConfigName);
+        Dictionary<string, object> config = ConfigEditorWindow.GetEditorConfigData(c_EditorConfigName);
 
         if (config == null)
         {
@@ -120,7 +120,7 @@ public class LanguageDataEditorWindow : EditorWindow
             config.Add(item.Key, item.Value);
         }
 
-        ConfigManager.SaveEditorConfigData(c_EditorConfigName, config);
+        ConfigEditorWindow.SaveEditorConfigData(c_EditorConfigName, config);
     }
 
     void SaveConfig()
@@ -149,7 +149,7 @@ public class LanguageDataEditorWindow : EditorWindow
         }
         config.Add(LanguageManager.c_moduleListKey, new SingleField(moduleList));
 
-        ConfigManager.SaveData(LanguageManager.c_configFileName, config);
+        ConfigEditorWindow.SaveData(LanguageManager.c_configFileName, config);
     }
 
     #endregion
@@ -161,7 +161,7 @@ public class LanguageDataEditorWindow : EditorWindow
         if (m_currentLanguage == m_defaultLanguage.ToString())
         {
             EditorGUI.indentLevel = 1;
-            EditorGUILayout.LabelField("默认语言", EditorGUIStyleData.s_WarnMessageLabel);
+            EditorGUILayout.LabelField("默认语言", EditorGUIStyleData.WarnMessageLabel);
         }
     }
 
@@ -201,7 +201,7 @@ public class LanguageDataEditorWindow : EditorWindow
                 {
                     string savePath = GetLanguageSavePath(LanguageName, item.Key);
 
-                    if (DataManager.GetIsExistDataEditor(savePath))
+                    if (GetIsExistDataEditor(savePath))
                     {
                         DataTable data = DataManager.GetData(savePath);
                          m_langeuageDataDict.Add(item.Key, data);
@@ -295,7 +295,7 @@ public class LanguageDataEditorWindow : EditorWindow
             {
                 if (s_languageKeyDict.ContainsKey(m_newModelName))
                 {
-                    EditorGUILayout.LabelField("模块名重复！", EditorGUIStyleData.s_WarnMessageLabel);
+                    EditorGUILayout.LabelField("模块名重复！", EditorGUIStyleData.WarnMessageLabel);
                 }
             }
         }
@@ -345,7 +345,7 @@ public class LanguageDataEditorWindow : EditorWindow
             {
                 if (languageKeyList.Contains(newField))
                 {
-                    EditorGUILayout.LabelField("字段名重复！", EditorGUIStyleData.s_WarnMessageLabel);
+                    EditorGUILayout.LabelField("字段名重复！", EditorGUIStyleData.WarnMessageLabel);
                 }
             }
         }
@@ -453,7 +453,7 @@ public class LanguageDataEditorWindow : EditorWindow
             }
             catch (Exception e)
             {
-                EditorGUILayout.TextArea("Error: " + e.ToString(), EditorGUIStyleData.s_ErrorMessageLabel);
+                EditorGUILayout.TextArea("Error: " + e.ToString(), EditorGUIStyleData.ErrorMessageLabel);
                 EditorGUILayout.Space();
             }
 
@@ -463,7 +463,7 @@ public class LanguageDataEditorWindow : EditorWindow
         {
             EditorGUILayout.BeginHorizontal();
 
-            EditorGUILayout.LabelField("缺少 " + key + " 字段", EditorGUIStyleData.s_WarnMessageLabel);
+            EditorGUILayout.LabelField("缺少 " + key + " 字段", EditorGUIStyleData.WarnMessageLabel);
 
             AddMissLanguageGUI(data, key);
 
@@ -496,7 +496,7 @@ public class LanguageDataEditorWindow : EditorWindow
             {
                 foreach (var item in m_langeuageDataDict)
                 {
-                    DataManager.SaveData(GetLanguageSavePath(m_currentLanguage,item.Key) ,item.Value);
+                    SaveData(GetLanguageSavePath(m_currentLanguage,item.Key) ,item.Value);
                 }
             }
         }
@@ -532,7 +532,7 @@ public class LanguageDataEditorWindow : EditorWindow
             }
             else
             {
-                EditorGUILayout.LabelField("已存在该语言",EditorGUIStyleData.s_WarnMessageLabel);
+                EditorGUILayout.LabelField("已存在该语言",EditorGUIStyleData.WarnMessageLabel);
             }
         }
 
@@ -594,7 +594,29 @@ public class LanguageDataEditorWindow : EditorWindow
 
     string GetLanguageSavePath(string langeuageName, string modelName)
     {
-        return c_DataPath + "/" + m_currentLanguage + "/" + LanguageManager.GetLanguageDataName(langeuageName, modelName);
+        return c_DataPath + "/" + langeuageName + "/" + LanguageManager.GetLanguageDataName(langeuageName, modelName);
+    }
+
+    public static bool GetIsExistDataEditor(string DataName)
+    {
+        return "" != ResourceIOTool.ReadStringByResource(
+                        PathTool.GetRelativelyPath(DataManager.c_directoryName,
+                                                    DataName,
+                                                    DataManager.c_expandName));
+    }
+
+    public static void SaveData(string ConfigName, DataTable data)
+    {
+        EditorUtil.WriteStringByFile(
+            PathTool.GetAbsolutePath(
+                ResLoadLocation.Resource,
+                PathTool.GetRelativelyPath(
+                    DataManager.c_directoryName,
+                    ConfigName,
+                    DataManager.c_expandName)),
+            DataTable.Serialize(data));
+
+        UnityEditor.AssetDatabase.Refresh();
     }
 
     #endregion

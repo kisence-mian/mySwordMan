@@ -19,25 +19,53 @@ public class UIManager : MonoBehaviour
 
     public static void Init()
     {
-        GameObject l_instance = GameObject.Find("UIManager");
+        GameObject instance = GameObject.Find("UIManager");
 
-        if (l_instance == null)
+        if (instance == null)
         {
-            l_instance = GameObjectManager.CreatGameObject("UIManager");
+            instance = GameObjectManager.CreateGameObject("UIManager");
         }
 
-        s_UIManagerGo = l_instance;
+        s_UIManagerGo = instance;
 
-        s_UILayerManager = l_instance.GetComponent<UILayerManager>();
-        s_UIAnimManager  = l_instance.GetComponent<UIAnimManager>();
-        s_UIcamera       = l_instance.GetComponentInChildren<Camera>();
+        s_UILayerManager = instance.GetComponent<UILayerManager>();
+        s_UIAnimManager  = instance.GetComponent<UIAnimManager>();
+        s_UIcamera       = instance.GetComponentInChildren<Camera>();
 
-        DontDestroyOnLoad(l_instance);
+        DontDestroyOnLoad(instance);
     }
 
-    #endregion
+    ///异步加载UIMnager
+    public static void InitAsync()
+    {
+        GameObject instance = GameObject.Find("UIManager");
 
-    #region UI的打开与关闭方法
+        if (instance == null)
+        {
+            GameObjectManager.CreateGameObjectByPoolAsync("UIManager",(obj)=> {
+                SetUIManager(obj);
+            });
+        }
+        else
+        {
+            SetUIManager(instance);
+        }
+    }
+
+    static void SetUIManager(GameObject instance)
+    {
+        s_UIManagerGo = instance;
+
+        s_UILayerManager = instance.GetComponent<UILayerManager>();
+        s_UIAnimManager = instance.GetComponent<UIAnimManager>();
+        s_UIcamera = instance.GetComponentInChildren<Camera>();
+
+        DontDestroyOnLoad(instance);
+    }
+
+#endregion
+
+#region UI的打开与关闭方法
 
     /// <summary>
     /// 创建UI,如果不打开则存放在Hide列表中
@@ -50,7 +78,7 @@ public class UIManager : MonoBehaviour
     }
     public static UIWindowBase CreateUIWindow(string UIName)
     {
-        GameObject UItmp = GameObjectManager.CreatGameObject(UIName, s_UIManagerGo);
+        GameObject UItmp = GameObjectManager.CreateGameObject(UIName, s_UIManagerGo);
         UIWindowBase UIbase = UItmp.GetComponent<UIWindowBase>();
         UISystemEvent.Dispatch(UIbase, UIEvent.OnInit);  //派发OnInit事件
         try{
@@ -177,6 +205,7 @@ public class UIManager : MonoBehaviour
 
     public static UIWindowBase ShowUI(UIWindowBase ui)
     {
+        UISystemEvent.Dispatch(ui, UIEvent.OnShow);  //派发OnShow事件
         try
         {
             ui.Show();
@@ -198,7 +227,7 @@ public class UIManager : MonoBehaviour
 
     public static UIWindowBase HideUI(UIWindowBase ui)
     {
-        UISystemEvent.Dispatch(ui, UIEvent.OnHide);  //派发OnShow事件
+        UISystemEvent.Dispatch(ui, UIEvent.OnHide);  //派发OnHide事件
 
         try
         {
@@ -261,9 +290,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 
-    #region UI内存管理
+#region UI的打开与关闭 异步方法
+
+    public static void OpenUIAsync<T>( UICallBack callback, params object[] objs) where T : UIWindowBase
+    {
+        string UIName = typeof(T).Name;
+        OpenUIAsync(UIName,callback,objs);
+    }
+
+    public static void OpenUIAsync(string UIName , UICallBack callback, params object[] objs)
+    {
+        ResourceManager.LoadAsync(UIName, (loadState,resObject) =>
+         {
+             if(loadState.isDone)
+             {
+                 OpenUIWindow(UIName, callback, objs);
+             }
+         });
+    }
+
+#endregion
+
+#region UI内存管理
 
     public static void DestroyUI(UIWindowBase UI)
     {
@@ -296,9 +346,9 @@ public class UIManager : MonoBehaviour
         DestroyAllHideUI();
     }
 
-    #endregion
+#endregion
 
-    #region 打开UI列表的管理
+#region 打开UI列表的管理
 
     /// <summary>
     /// 删除所有打开的UI
@@ -420,9 +470,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 
-    #region 隐藏UI列表的管理
+#region 隐藏UI列表的管理
 
     /// <summary>
     /// 删除所有隐藏的UI
@@ -522,9 +572,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 }
-    #region UI事件 代理 枚举
+#region UI事件 代理 枚举
 
     /// <summary>
     /// UI回调
@@ -561,4 +611,4 @@ public class UIManager : MonoBehaviour
         OnStartExitAnim,
         OnCompleteExitAnim,
     }
-    #endregion
+#endregion

@@ -2,9 +2,8 @@
 using System.Collections;
 using System;
 
-public class TimerEvent : HeapObjectBase
+public class TimerEvent
 {
-
     public string m_timerName = "";
 
     /// <summary>
@@ -25,6 +24,8 @@ public class TimerEvent : HeapObjectBase
 
     public bool m_isDone = false;
 
+    public bool m_isStop = false;
+
     public void Update()
     {
         if (m_isIgnoreTimeScale)
@@ -40,19 +41,6 @@ public class TimerEvent : HeapObjectBase
         {
             m_isDone = true;
         }
-    }
-
-    public override void OnRelease()
-    {
-        m_timerName = "";
-        m_repeatCount   = 0;
-        m_currentRepeat = 0;
-        m_isIgnoreTimeScale = false;
-        m_callBack = null;
-        m_objs = null;
-        m_timerSpace = 0; ;
-        m_currentTimer = 0;
-        m_isDone = false;
     }
 
     public void CompleteTimer()
@@ -90,6 +78,27 @@ public class TimerEvent : HeapObjectBase
     {
         m_currentTimer = 0;
         m_currentRepeat = 0;
+    }
+
+    public void OnInit() { }
+
+    public void OnPop()
+    {
+        m_timerName = "";
+        m_repeatCount = 0;
+        m_currentRepeat = 0;
+        m_isIgnoreTimeScale = false;
+        m_callBack = null;
+        m_objs = null;
+        m_timerSpace = 0; ;
+        m_currentTimer = 0;
+        m_isDone = false;
+        m_isStop = false;
+    }
+
+    public void OnPush()
+    {
+        m_isStop = true;
     }
 }
 

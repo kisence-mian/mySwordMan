@@ -9,7 +9,7 @@ public class InputUIEventProxy : IInputProxyBase
     #region 添加监听
     public static InputEventRegisterInfo<InputUIOnClickEvent> AddOnClickListener(Button button, string UIName, string ComponentName, string parm, InputEventHandle<InputUIOnClickEvent> callback)
     {
-        InputButtonClickRegisterInfo info = HeapObjectPool.GetObject<InputButtonClickRegisterInfo>();
+        InputButtonClickRegisterInfo info = HeapObjectPool<InputButtonClickRegisterInfo>.GetObject();
 
         info.eventKey = InputUIOnClickEvent.GetEventKey(UIName, ComponentName, parm);
         info.callBack = callback;
@@ -28,7 +28,7 @@ public class InputUIEventProxy : IInputProxyBase
 
     public static InputEventRegisterInfo<InputUILongPressEvent> AddLongPressListener(LongPressAcceptor acceptor, string UIName, string ComponentName, string parm, InputEventHandle<InputUILongPressEvent> callback)
     {
-        InputlongPressRegisterInfo info = HeapObjectPool.GetObject<InputlongPressRegisterInfo>();
+        InputlongPressRegisterInfo info = HeapObjectPool<InputlongPressRegisterInfo>.GetObject();
 
         info.eventKey = InputUILongPressEvent.GetEventKey(UIName, ComponentName, parm);
         info.callBack = callback;
@@ -46,52 +46,73 @@ public class InputUIEventProxy : IInputProxyBase
 
     public static InputEventRegisterInfo<InputUIOnScrollEvent> AddOnScrollListener(string UIName, string ComponentName, InputEventHandle<InputUIOnScrollEvent> callback)
     {
-        InputEventRegisterInfo<InputUIOnScrollEvent> info = HeapObjectPool.GetObject<InputEventRegisterInfo<InputUIOnScrollEvent>>();
+        InputEventRegisterInfo<InputUIOnScrollEvent> info = HeapObjectPool<InputEventRegisterInfo<InputUIOnScrollEvent>>.GetObject();
 
         info.eventKey = InputUIOnScrollEvent.GetEventKey(UIName, ComponentName);
         info.callBack = callback;
 
-        InputManager.AddListener<InputUIOnScrollEvent>(
+        InputManager.AddListener(
             InputUIOnScrollEvent.GetEventKey(UIName, ComponentName), callback);
 
         return info;
     }
 
-    public static InputEventRegisterInfo<InputUIOnDragEvent> AddOnDragListener(string UIName, string ComponentName, InputEventHandle<InputUIOnDragEvent> callback)
+    public static InputEventRegisterInfo<InputUIOnDragEvent> AddOnDragListener(DragAcceptor acceptor, string UIName, string ComponentName, string parm, InputEventHandle<InputUIOnDragEvent> callback)
     {
-        InputEventRegisterInfo<InputUIOnDragEvent> info = HeapObjectPool.GetObject<InputEventRegisterInfo<InputUIOnDragEvent>>();
+        InputDragRegisterInfo info = HeapObjectPool<InputDragRegisterInfo>.GetObject();
 
         info.eventKey = InputUIOnDragEvent.GetEventKey(UIName, ComponentName);
         info.callBack = callback;
+        info.m_acceptor = acceptor;
+        info.m_OnDrag = (data) =>
+            {
+                DispatchDragEvent(UIName, ComponentName, parm, data);
+            };
 
-        InputManager.AddListener<InputUIOnDragEvent>(
-            InputUIOnDragEvent.GetEventKey(UIName, ComponentName), callback);
+        info.AddListener();
+
+        InputManager.AddListener(
+            InputUIOnDragEvent.GetEventKey(UIName, ComponentName, parm), callback);
 
         return info;
     }
 
-    public static InputEventRegisterInfo<InputUIOnBeginDragEvent> AddOnBeginDragListener(string UIName, string ComponentName, InputEventHandle<InputUIOnBeginDragEvent> callback)
+    public static InputBeginDragRegisterInfo AddOnBeginDragListener(DragAcceptor acceptor, string UIName, string ComponentName, string parm, InputEventHandle<InputUIOnBeginDragEvent> callback)
     {
-        InputEventRegisterInfo<InputUIOnBeginDragEvent> info = HeapObjectPool.GetObject<InputEventRegisterInfo<InputUIOnBeginDragEvent>>();
+        InputBeginDragRegisterInfo info = HeapObjectPool<InputBeginDragRegisterInfo>.GetObject();
 
-        info.eventKey = InputUIOnDragEvent.GetEventKey(UIName, ComponentName);
+        info.eventKey = InputUIOnBeginDragEvent.GetEventKey(UIName, ComponentName);
         info.callBack = callback;
+        info.m_acceptor = acceptor;
+        info.m_OnBeginDrag = (data) =>
+        {
+            DispatchBeginDragEvent(UIName, ComponentName, parm, data);
+        };
 
-        InputManager.AddListener<InputUIOnBeginDragEvent>(
-            InputUIOnBeginDragEvent.GetEventKey(UIName, ComponentName), callback);
+        info.AddListener();
+
+        InputManager.AddListener(
+            InputUIOnBeginDragEvent.GetEventKey(UIName, ComponentName, parm), callback);
 
         return info;
     }
 
-    public static InputEventRegisterInfo<InputUIOnEndDragEvent> AddOnEndDragListener(string UIName, string ComponentName, InputEventHandle<InputUIOnEndDragEvent> callback)
+    public static InputEndDragRegisterInfo AddOnEndDragListener(DragAcceptor acceptor, string UIName, string ComponentName, string parm, InputEventHandle<InputUIOnEndDragEvent> callback)
     {
-        InputEventRegisterInfo<InputUIOnEndDragEvent> info = HeapObjectPool.GetObject<InputEventRegisterInfo<InputUIOnEndDragEvent>>();
+        InputEndDragRegisterInfo info = HeapObjectPool<InputEndDragRegisterInfo>.GetObject();
 
         info.eventKey = InputUIOnEndDragEvent.GetEventKey(UIName, ComponentName);
         info.callBack = callback;
+        info.m_acceptor = acceptor;
+        info.m_OnEndDrag = (data) =>
+        {
+            DispatchEndDragEvent(UIName, ComponentName, parm, data);
+        };
 
-        InputManager.AddListener<InputUIOnEndDragEvent>(
-            InputUIOnEndDragEvent.GetEventKey(UIName, ComponentName), callback);
+        info.AddListener();
+
+        InputManager.AddListener(
+            InputUIOnDragEvent.GetEventKey(UIName, ComponentName, parm), callback);
 
         return info;
     }
@@ -133,7 +154,6 @@ public class InputUIEventProxy : IInputProxyBase
         }
     }
 
-
     public static void DispatchScrollEvent(string UIName, string ComponentName, string parm, Vector2 position)
     {
         //只有允许输入时才派发事件
@@ -144,32 +164,39 @@ public class InputUIEventProxy : IInputProxyBase
         }
     }
 
-    public static void DispatchDragEvent(string UIName, string ComponentName,string parm, Vector2 pos)
+    public static void DispatchDragEvent(string UIName, string ComponentName,string parm, PointerEventData data)
     {
         //只有允许输入时才派发事件
         if (IsActive)
         {
-            InputUIOnDragEvent e = GetDragEvent(UIName, ComponentName,parm, pos);
+            InputUIOnDragEvent e = GetUIEvent<InputUIOnDragEvent>(UIName, ComponentName, parm);
+            e.m_dragPosition = data.position;
+            e.m_delta = data.delta;
+
             InputManager.Dispatch("InputUIOnDragEvent",e);
         }
     }
 
-    public static void DispatchBeginDragEvent(string UIName, string ComponentName, string parm = "")
+    public static void DispatchBeginDragEvent(string UIName, string ComponentName, string parm, PointerEventData data)
     {
         //只有允许输入时才派发事件
         if (IsActive)
         {
             InputUIOnBeginDragEvent e = GetUIEvent<InputUIOnBeginDragEvent>(UIName, ComponentName, parm);
+            e.m_dragPosition = data.position;
+            e.m_delta = data.delta;
             InputManager.Dispatch("InputUIOnBeginDragEvent",e);
         }
     }
 
-    public static void DispatchEndDragEvent(string UIName, string ComponentName, string parm = "")
+    public static void DispatchEndDragEvent(string UIName, string ComponentName, string parm , PointerEventData data)
     {
         //只有允许输入时才派发事件
         if (IsActive)
         {
             InputUIOnEndDragEvent e = GetUIEvent<InputUIOnEndDragEvent>(UIName, ComponentName, parm);
+            e.m_dragPosition = data.position;
+            e.m_delta = data.delta;
             InputManager.Dispatch("InputUIOnEndDragEvent",e);
         }
     }
@@ -180,7 +207,7 @@ public class InputUIEventProxy : IInputProxyBase
 
     static T GetUIEvent<T>(string UIName, string ComponentName, string parm) where T:InputUIEventBase,new()
     {
-        T msg = HeapObjectPoolTool<T>.GetHeapObject();
+        T msg = HeapObjectPool<T>.GetObject();
         msg.Reset();
         msg.m_name = UIName;
         msg.m_compName = ComponentName;
@@ -198,12 +225,6 @@ public class InputUIEventProxy : IInputProxyBase
         return msg;
     }
 
-    static InputUIOnDragEvent GetDragEvent(string UIName, string ComponentName, string parm, Vector2 pos)
-    {
-        InputUIOnDragEvent msg = GetUIEvent<InputUIOnDragEvent>(UIName, ComponentName, parm);
-        msg.m_dragPosition = pos;
-        return msg;
-    }
 
     #endregion
 }
@@ -229,5 +250,60 @@ public class InputlongPressRegisterInfo : InputEventRegisterInfo<InputUILongPres
     {
         base.RemoveListener();
         m_acceptor.OnLongPress -= m_OnLongPress;
+    }
+}
+
+public class InputDragRegisterInfo : InputEventRegisterInfo<InputUIOnDragEvent>
+{
+    public DragAcceptor m_acceptor;
+    public InputUIEventDragCallBack m_OnDrag;
+
+    public override void AddListener()
+    {
+        base.AddListener();
+        m_acceptor.m_OnDrag += m_OnDrag;
+    }
+
+
+    public override void RemoveListener()
+    {
+        base.RemoveListener();
+        m_acceptor.m_OnDrag -= m_OnDrag;
+    }
+}
+
+public class InputBeginDragRegisterInfo : InputEventRegisterInfo<InputUIOnBeginDragEvent>
+{
+    public DragAcceptor m_acceptor;
+    public InputUIEventDragCallBack m_OnBeginDrag;
+
+    public override void AddListener()
+    {
+        base.AddListener();
+        m_acceptor.m_OnBeginDrag += m_OnBeginDrag;
+    }
+
+    public override void RemoveListener()
+    {
+        base.RemoveListener();
+        m_acceptor.m_OnBeginDrag -= m_OnBeginDrag;
+    }
+}
+
+public class InputEndDragRegisterInfo : InputEventRegisterInfo<InputUIOnEndDragEvent>
+{
+    public DragAcceptor m_acceptor;
+    public InputUIEventDragCallBack m_OnEndDrag;
+
+    public override void AddListener()
+    {
+        base.AddListener();
+        m_acceptor.m_OnEndDrag += m_OnEndDrag;
+    }
+    public override void RemoveListener()
+    {
+        base.RemoveListener();
+        m_acceptor.m_OnEndDrag -= m_OnEndDrag;
+
     }
 }

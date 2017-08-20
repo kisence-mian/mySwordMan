@@ -4,25 +4,25 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
 
-public class AnimData : HeapObjectBase
+public class AnimData
 {
     #region 参数
 
     //基本变量
     public GameObject m_animGameObejct;
     public AnimType m_animType;
-    public InterpType m_interpolationType = InterpType.Default ;
-    public PathType m_pathType            = PathType.Line;
-    public RepeatType m_repeatType        = RepeatType.Once;
+    public InterpType m_interpolationType = InterpType.Default;
+    public PathType m_pathType = PathType.Line;
+    public RepeatType m_repeatType = RepeatType.Once;
 
     public bool m_ignoreTimeScale = false;
 
     //进度控制变量
-    public float m_delayTime   = 0;
-    public bool  m_isDone      = false;
+    public float m_delayTime = 0;
+    public bool m_isDone = false;
     public float m_currentTime = 0;
-    public float m_totalTime   = 0;
-    public int   m_repeatCount = -1;
+    public float m_totalTime = 0;
+    public int m_repeatCount = -1;
 
     //V3
     public Vector3 m_fromV3;
@@ -38,7 +38,7 @@ public class AnimData : HeapObjectBase
 
     //Move
     public Transform m_toTransform;
-    
+
     //Color
     public Color m_fromColor;
     public Color m_toColor;
@@ -47,7 +47,7 @@ public class AnimData : HeapObjectBase
     //动画回调
     public object[] m_parameter;
     public AnimCallBack m_callBack;
-    
+
     //闪烁
     public float m_space = 0;
     float m_timer = 0;
@@ -57,7 +57,7 @@ public class AnimData : HeapObjectBase
     public bool m_isLocal = false;
 
     //控制点
-    public Vector3[] m_v3Contral  = null; //二阶取第一个用，三阶取前两个
+    public Vector3[] m_v3Contral = null; //二阶取第一个用，三阶取前两个
     public float[] m_floatContral = null;
 
     //自定义函数
@@ -98,7 +98,7 @@ public class AnimData : HeapObjectBase
             }
         }
 
-        if (m_currentTime > m_totalTime)
+        if (m_currentTime >= m_totalTime)
         {
             m_currentTime = m_totalTime;
             m_isDone = true;
@@ -106,7 +106,6 @@ public class AnimData : HeapObjectBase
 
         try
         {
-
             switch (m_animType)
             {
                 case AnimType.UGUI_Color: UguiColor(); break;
@@ -130,14 +129,14 @@ public class AnimData : HeapObjectBase
                 case AnimType.Blink: Blink(); break;
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.LogError("AnimSystem Error Exception: " + e.ToString());
         }
     }
 
     //动画播放完毕执行回调
-    public void executeCallBack()
+    public void ExecuteCallBack()
     {
         try
         {
@@ -152,9 +151,14 @@ public class AnimData : HeapObjectBase
         }
     }
 
-    //动画循环逻辑
+    /// <summary>
+    /// 动画循环逻辑
+    /// </summary>
+
     public bool AnimReplayLogic()
     {
+        bool result = false;
+
         switch (m_repeatType)
         {
             case RepeatType.Once:
@@ -176,13 +180,15 @@ public class AnimData : HeapObjectBase
 
         if (m_repeatCount == -1)
         {
-            return true;
+            result = true;
         }
         else
         {
             m_repeatCount--;
-            return  (m_repeatCount > 0);
+            result = (m_repeatCount > 0);
         }
+
+        return result;
     }
 
     #region 循环逻辑
@@ -239,21 +245,7 @@ public class AnimData : HeapObjectBase
         }
     }
 
-    public override void OnRelease()
-    {
-        m_ignoreTimeScale = false;
-
-        m_delayTime   = 0;
-        m_isDone      = false;
-        m_currentTime = 0;
-        m_totalTime   = 0;
-        m_repeatCount = -1;
-
-        m_pathType = PathType.Line;
-        m_v3Contral = null;
-        m_floatContral = null;
-        //m_toTransform = null;
-    }
+    public void OnInit() { }
 
     #endregion
 
@@ -361,9 +353,9 @@ public class AnimData : HeapObjectBase
     /// </summary>
     Vector3 Bezier3(Vector3 startPos, Vector3 endPos, float n_time, Vector3[] t_ControlPoint)
     {
-        return (1 - n_time) * (1 - n_time) * (1 - n_time) * startPos 
-            + 3 * (1 - n_time) * (1 - n_time) * n_time * t_ControlPoint[0] 
-            + 3 * (1 - n_time) * n_time * n_time * t_ControlPoint[1] 
+        return (1 - n_time) * (1 - n_time) * (1 - n_time) * startPos
+            + 3 * (1 - n_time) * (1 - n_time) * n_time * t_ControlPoint[0]
+            + 3 * (1 - n_time) * n_time * n_time * t_ControlPoint[1]
             + n_time * n_time * n_time * endPos;
     }
 
@@ -374,7 +366,7 @@ public class AnimData : HeapObjectBase
     #region UGUI_Color
 
     List<Image> m_animObjectList_Image = new List<Image>();
-    List<Text>  m_animObjectList_Text = new List<Text>();
+    List<Text> m_animObjectList_Text = new List<Text>();
 
     #region ALpha
 
@@ -387,7 +379,7 @@ public class AnimData : HeapObjectBase
         if (isChild)
         {
             Image[] images = m_animGameObejct.GetComponentsInChildren<Image>();
-            for(int i = 0; i < images.Length; i++)
+            for (int i = 0; i < images.Length; i++)
             {
                 if (images[i].transform.GetComponent<Mask>() == null)
                 {
@@ -496,7 +488,7 @@ public class AnimData : HeapObjectBase
             {
                 m_animObjectList_Image.Add(image);
             }
-            if(text != null)
+            if (text != null)
             {
                 m_animObjectList_Text.Add(text);
             }
@@ -704,7 +696,7 @@ public class AnimData : HeapObjectBase
         {
             m_timer -= Time.deltaTime;
         }
- 
+
     }
 
     #endregion
@@ -745,6 +737,11 @@ public class AnimData : HeapObjectBase
             case InterpType.OutExpo: return OutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
             case InterpType.InOutExpo: return InOutExpo(oldValue, aimValue, m_currentTime, m_totalTime);
             case InterpType.OutInExpo: return OutInExpo(oldValue, aimValue, m_currentTime, m_totalTime);
+
+            case InterpType.InBounce: return InBounce(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutBounce: return OutBounce(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.InOutBounce: return InOutBounce(oldValue, aimValue, m_currentTime, m_totalTime);
+            case InterpType.OutInBounce: return OutInBounce(oldValue, aimValue, m_currentTime, m_totalTime);
         }
 
         return 0;
@@ -772,12 +769,10 @@ public class AnimData : HeapObjectBase
 
     Color GetInterpolationColor(Color oldValue, Color aimValue)
     {
-        
-
-        Color result = new Color( GetInterpolation(oldValue.r,aimValue.r), 
-                                  GetInterpolation(oldValue.g,aimValue.g), 
-                                  GetInterpolation(oldValue.b,aimValue.b), 
-                                  GetInterpolation(oldValue.a,aimValue.a));
+        Color result = new Color(GetInterpolation(oldValue.r, aimValue.r),
+                                  GetInterpolation(oldValue.g, aimValue.g),
+                                  GetInterpolation(oldValue.b, aimValue.b),
+                                  GetInterpolation(oldValue.a, aimValue.a));
         return result;
     }
 
@@ -1101,11 +1096,101 @@ public class AnimData : HeapObjectBase
         }
     }
 
+    public float OutBounce(float b, float to, float t, float d)
+    {
+        float c = to - b;
+        t = t / d;
+        if (t < 1 / 2.75)
+        {
+            return c * (7.5625f * t * t) + b;
+        }
+        else if (t < 2 / 2.75)
+        {
+            t = t - (1.5f / 2.75f);
+
+            return c * (7.5625f * t * t + 0.75f) + b;
+        }
+        else if (t < 2.5 / 2.75)
+        {
+
+            t = t - (2.25f / 2.75f);
+            return c * (7.5625f * t * t + 0.9375f) + b;
+        }
+        else
+        {
+          t = t - (2.625f / 2.75f);
+          return c * (7.5625f * t * t + 0.984375f) + b;
+        }
+    }
+
+    public float InBounce(float b, float to, float t, float d)
+    {
+        float c = to - b;
+        return c - OutBounce(0 , to, d - t, d) + b;
+    }
+
+    public float InOutBounce(float b, float to, float t, float d)
+    {
+        float c = to - b;
+        if (t < d / 2)
+        {
+            return InBounce(0, to, t * 2f, d) * 0.5f + b;
+        }
+        else
+        {
+            return OutBounce(0, to, t * 2f - d, d) * 0.5f + c * 0.5f + b;
+        }
+    }
+
+    public float OutInBounce(float b, float to, float t, float d)
+    {
+        float c = to - b;
+        if (t < d / 2)
+        {
+            return OutBounce( b,b +  c / 2, t * 2, d);
+        }
+        else
+        {
+            return InBounce(b + c / 2, to, t * 2f - d, d);
+            
+        }
+    }
+
+
     //outInExpo,
     //inBack,
     //outBack,
     //inOutBack,
     //outInBack,
+
+    #endregion
+
+    #region Debug
+
+
+    public void ShowDebug()
+    {
+        AnimData data = new AnimData();
+
+        Type type = data.GetType();
+
+        System.Reflection.FieldInfo[] infos = type.GetFields();
+
+        for (int i = 0; i < infos.Length; i++)
+        {
+            if(
+                (infos[i].GetValue(this) == null && infos[i].GetValue(data) != null)
+                || (infos[i].GetValue(this) != null && infos[i].GetValue(data) == null)
+                || (infos[i].GetValue(this) != null && !infos[i].GetValue(this).Equals(infos[i].GetValue(data)))
+                )
+            {
+                Debug.Log(" " + infos[i].Name + " is not equal ! this value : " + infos[i].GetValue(this) + " data Value :" + infos[i].GetValue(data));
+
+            }
+
+
+        }
+    }
 
     #endregion
 }

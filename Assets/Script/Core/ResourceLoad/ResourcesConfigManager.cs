@@ -83,6 +83,7 @@ public static class ResourcesConfigManager
 
     public static string ReadResourceConfigContent()
     {
+#if !UNITY_WEBGL
         string dataJson = "";
 
         if (ResourceManager.m_gameLoadType == ResLoadLocation.Resource)
@@ -117,7 +118,32 @@ public static class ResourcesConfigManager
         }
 
         return dataJson;
+#else
+        return WEBGLReadResourceConfigContent();
+#endif
     }
+
+#if UNITY_WEBGL
+    //WEbGL 下获取Bundle Setting
+    static string WEBGLReadResourceConfigContent()
+    {
+        string dataJson = "";
+
+        //if (ResourceManager.m_gameLoadType == ResLoadLocation.Resource)
+        //{
+            dataJson = ResourceIOTool.ReadStringByResource(
+                c_ManifestFileName + "." + ConfigManager.c_expandName);
+        //}
+        //else
+        //{
+        //    dataJson = ResourceIOTool.ReadStringByBundle(
+        //    PathTool.GetLoadURL(c_ManifestFileName + "." + AssetsBundleManager.c_AssetsBundlesExpandName)
+        //    );
+        //}
+
+        return dataJson;
+    }
+#endif
 
     public static ResourcesConfigStruct AnalysisResourcesConfig2Struct(string content)
     {
@@ -128,7 +154,7 @@ public static class ResourcesConfigManager
 
         ResourcesConfigStruct result = new ResourcesConfigStruct();
 
-        Dictionary<string, object> data = (Dictionary<string, object>)MiniJSON.Json.Deserialize(content);
+        Dictionary<string, object> data = (Dictionary<string, object>)FrameWork.Json.Deserialize(content);
 
         Dictionary<string, object> gameRelyBundles = (Dictionary<string, object>)data[c_relyBundleKey];
         Dictionary<string, object> gameAssetsBundles = (Dictionary<string, object>)data[c_bundlesKey];

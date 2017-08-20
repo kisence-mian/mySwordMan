@@ -36,3 +36,4 @@ GamePerfect	完美无瑕！
 GameGood	渐入佳境
 GameVeryGood	得心应手
 finish	差强人意
+xiandaishi	现代诗

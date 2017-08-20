@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class InputUIOnEndDragEvent : InputUIEventBase
 {
-     public InputUIOnEndDragEvent()
+    public Vector2 m_dragPosition;
+    public Vector2 m_delta;
+    public InputUIOnEndDragEvent()
     {
-        m_type = InputUIEventType.Scroll;
+        m_type = InputUIEventType.EndDrag;
     }
 
      public InputUIOnEndDragEvent(string UIName, string ComponentName)
-        : base(UIName, ComponentName,InputUIEventType.Scroll)
+        : base(UIName, ComponentName,InputUIEventType.EndDrag)
     {
     }
 
-
-
     public static string GetEventKey(string UIName, string ComponentName, string pram = null)
     {
-        return UIName + "." + ComponentName + "." + pram + "." + InputUIEventType.Scroll.ToString();
+        return UIName + "." + ComponentName + "." + pram + "." + InputUIEventType.EndDrag.ToString();
     }
 	
 }

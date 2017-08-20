@@ -15,6 +15,16 @@ public class FavoriteWindow : UIWindowBase
 
     public override void OnOpen()
     {
+        List<string> list = FavoritesService.GetFavoritesList();
+        if (list.Count > 0)
+        {
+            GetGameObject("Button_exercise").SetActive(true);
+        }
+        else
+        {
+            GetGameObject("Button_exercise").SetActive(false);
+        }
+
         AddOnClickListener("Button_return", OnClickReturn);
         AddOnClickListener("Button_exercise", OnClickExercise);
         SetData();

@@ -6,7 +6,7 @@ public class GlobalLuaHelper : MonoBehaviour {
     {
         name = name.ToLower();
         string str = "";
-        if (name == "bundleidentifier") str = Application.bundleIdentifier;
+        if (name == "bundleidentifier") str = Application.identifier;
         if (name == "version") str = Application.version;
         if (name == "devicemodel") str = SystemInfo.deviceModel;
         if (name == "devicename") str = SystemInfo.deviceName;

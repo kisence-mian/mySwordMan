@@ -31,7 +31,7 @@ public class LuaEditorWindow : EditorWindow
     {
         titleContent.text = "Lua设置编辑器";
 
-        if (!Directory.Exists(CustomSettings.saveDir))
+        if (!GetIsInit())
         {
             InitLuaGUI();
         }
@@ -49,6 +49,15 @@ public class LuaEditorWindow : EditorWindow
 
     #region 项目Lua初始化
 
+    bool GetIsInit()
+    {
+    #if USE_LUA
+        return true;
+    #else
+        return false;
+    #endif
+    }
+
     void InitLuaGUI()
     {
         if (GUILayout.Button("Lua 项目初始化"))
@@ -59,7 +68,13 @@ public class LuaEditorWindow : EditorWindow
 
     void InitLua()
     {
-        ToLuaMenu.GenLuaAll();
+        //创建导出列表文件
+        CreateLuaExportFile();
+
+        //创建空LuaBinder文件
+        CreateEmptyLuaBinder();
+
+        ToLuaMenu.ClearLuaFiles();
         //创建Lua目录
         Directory.CreateDirectory(PathTool.GetAbsolutePath(ResLoadLocation.Resource, c_LuaLibFilePath));
         Directory.CreateDirectory(PathTool.GetAbsolutePath(ResLoadLocation.Resource, c_LuaFilePath));
@@ -69,9 +84,62 @@ public class LuaEditorWindow : EditorWindow
 
         //复制lua初始库文件
         FileTool.CopyDirectory(resPath, aimPath);
+
+        //初始Warp
+        ToLuaMenu.GenLuaAll();
+
+        //自动生成Lua配置文件
+        GetLuaFileList();
+        SaveLuaConfig();
+
+        //创建启动文件
+        string luaMainPath = Application.dataPath + "/Resources/Lua/luaMain.txt";
+        string content = "print(\"lua is launch!\");";
+
+        ResourceIOTool.WriteStringByFile(luaMainPath, content);
+
+        //设置宏
+        ProjectBuildService.SetScriptDefine("USE_LUA");
+
+        AssetDatabase.Refresh();
+
+        string info = "Lua初始化完成，\n";
+        info += "请先生成luaWarp文件 （Window -> Lua设置管理器 -> 重新生成Lua Warp脚本）\n";
+        info += "再重新生成打包设置（Window -> 打包设置管理器 -> 自动添加Resources目录下的资源并保存）\n";
+
+        Debug.Log(info);
     }
 
-    #endregion
+    void CreateLuaExportFile()
+    {
+        string LoadPath = Application.dataPath + "/Script/Core/Editor/res/LuaExportListTemplate.txt";
+        string SavePath = Application.dataPath + "/Script/UI/Editor/Lua/LuaExportList.cs";
+
+        string ExportListContent = ResourceIOTool.ReadStringByFile(LoadPath);
+
+        EditorUtil.WriteStringByFile(SavePath, ExportListContent);
+    }
+
+    static void CreateEmptyLuaBinder()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("using System;");
+        sb.AppendLine("using LuaInterface;");
+        sb.AppendLine();
+        sb.AppendLine("public static class LuaBinder");
+        sb.AppendLine("{");
+        sb.AppendLine("\tpublic static void Bind(LuaState L)");
+        sb.AppendLine("\t{");
+        sb.AppendLine("\t\tthrow new LuaException(\"Please generate LuaBinder files first!\");");
+        sb.AppendLine("\t}");
+        sb.AppendLine("}");
+
+        string filePath = CustomSettings.saveDir + "/LuaBinder.cs";
+
+        EditorUtil.WriteStringByFile(filePath, sb.ToString());
+    }
+
+#endregion
 
     #region 读取Lua配置
     void LoadLuaConfig()
@@ -104,7 +172,7 @@ public class LuaEditorWindow : EditorWindow
             m_LuaLibFileList = new List<string>();
         }
     }
-    #endregion
+#endregion
 
     #region Lua信息检视
 
@@ -153,7 +221,7 @@ public class LuaEditorWindow : EditorWindow
         EditorGUI.indentLevel--;
     }
 
-    #endregion
+#endregion
 
     #region ULua原生功能
 
@@ -197,10 +265,10 @@ public class LuaEditorWindow : EditorWindow
         sb.AppendLine("\t}");
         sb.AppendLine("}");
 
-        ResourceIOTool.WriteStringByFile(CustomSettings.saveDir + "/LuaBinderCatch.cs", sb.ToString());
+        EditorUtil.WriteStringByFile(CustomSettings.saveDir + "/LuaBinderCatch.cs", sb.ToString());
     }
 
-    #endregion
+#endregion
 
     #region 自动生成Lua设置
 
@@ -255,7 +323,7 @@ public class LuaEditorWindow : EditorWindow
             m_luaConfig[LuaManager.c_LuaLibraryListKey].m_content = luaLibConfig;
         }
 
-        ConfigManager.SaveData(LuaManager.c_LuaConfigName, m_luaConfig);
+        ConfigEditorWindow.SaveData(LuaManager.c_LuaConfigName, m_luaConfig);
     }
 
     void GetLuaFileList()
@@ -305,5 +373,5 @@ public class LuaEditorWindow : EditorWindow
         }
     }
 
-    #endregion
+#endregion
 }

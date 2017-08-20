@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
- 
+
 public class EditorTool :MonoBehaviour
 {
     public static Type GetType(string typeName)
@@ -11,11 +10,19 @@ public class EditorTool :MonoBehaviour
         return Type.GetType(typeName);
     }
 
+    public static Type[] GetTypes()
+    {
+        return Assembly.Load("Assembly-CSharp").GetTypes();
+    }
+
     public static string[] GetAllEnumType()
     {
         List<string> listTmp = new List<string>();
-
+#if UNITY_WEBGL
+        Type[] types = Assembly.Load(Assembly.GetExecutingAssembly().FullName).GetTypes();
+#else
         Type[] types = Assembly.Load("Assembly-CSharp").GetTypes();
+#endif
 
         for (int i = 0; i < types.Length; i++)
         {
@@ -28,6 +35,7 @@ public class EditorTool :MonoBehaviour
             }
         }
         return listTmp.ToArray();
+
     }
 
     public static int GetAllEnumTypeIndex(string typeName)

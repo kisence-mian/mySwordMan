@@ -6,7 +6,7 @@ using System;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
-using MiniJSON;
+using FrameWork;
 
 public class TCPService : INetworkInterface 
 {
@@ -27,7 +27,7 @@ public class TCPService : INetworkInterface
 
     public override void Init()
     {
-        InitMessagePool(50);
+
     }
 
     public override void GetIPAddress()

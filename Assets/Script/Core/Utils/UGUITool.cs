@@ -8,7 +8,7 @@ public class UGUITool
     static PointerEventData eventDatas = new PointerEventData(EventSystem.current);
     static List<RaycastResult> hit = new List<RaycastResult>();
 
-    static public bool isHitUI()
+    static public bool IsHitUI()
     {
         eventDatas.position = Input.mousePosition;
         eventDatas.pressPosition = Input.mousePosition;
@@ -28,13 +28,29 @@ public class UGUITool
         {
             Texture2D tex = ResourceManager.Load<Texture2D>(name);
             img.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector3.zero);
+            img.sprite = img.overrideSprite;
 
             if (is_nativesize)
                 img.SetNativeSize();
         }
         catch (System.Exception e)
         {
-            Debug.LogError(e.Message);           
+            Debug.LogError("set_icon Exception:" + e.ToString());           
         }
     }
+
+    static public void set_SpriteRender(GameObject go , string name)
+    {
+        try {
+            Texture2D tex = ResourceManager.Load<Texture2D>(name);
+            SpriteRenderer sprite = go.GetComponent<SpriteRenderer>();
+            sprite.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector3.one * 0.5f);
+        }
+        catch
+        {
+
+        }
+    }
+
+
 }

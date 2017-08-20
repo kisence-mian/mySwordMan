@@ -31,37 +31,37 @@ public class GameObjectManager :MonoBehaviour
     /// <summary>
     /// 加载一个对象并把它实例化
     /// </summary>
-    /// <param name="l_gameObjectName">对象名</param>
-    /// <param name="l_parent">对象的父节点,可空</param>
+    /// <param name="gameObjectName">对象名</param>
+    /// <param name="parent">对象的父节点,可空</param>
     /// <returns></returns>
-    public static GameObject CreatGameObject(string l_gameObjectName,GameObject l_parent = null)
+    public static GameObject CreateGameObject(string gameObjectName,GameObject parent = null)
     {
-        GameObject l_goTmp = ResourceManager.Load<GameObject>(l_gameObjectName);
+        GameObject goTmp = ResourceManager.Load<GameObject>(gameObjectName);
 
-        if (l_goTmp == null)
+        if (goTmp == null)
         {
-            throw new Exception("CreatGameObject error dont find :" + l_gameObjectName);
+            throw new Exception("CreateGameObject error dont find :" + gameObjectName);
         }
 
-        return CreatGameObject(l_goTmp, l_parent);
+        return CreateGameObject(goTmp, parent);
     }
 
-    public static GameObject CreatGameObject(GameObject l_prefab, GameObject l_parent = null)
+    public static GameObject CreateGameObject(GameObject prefab, GameObject parent = null)
     {
-        if (l_prefab == null)
+        if (prefab == null)
         {
-            throw new Exception("CreatGameObject error : l_prefab  is null");
+            throw new Exception("CreateGameObject error : l_prefab  is null");
         }
 
-        GameObject l_instanceTmp = Instantiate(l_prefab);
-        l_instanceTmp.name = l_prefab.name;
+        GameObject instanceTmp = Instantiate(prefab);
+        instanceTmp.name = prefab.name;
 
-        if (l_parent != null)
+        if (parent != null)
         {
-            l_instanceTmp.transform.SetParent(l_parent.transform);
+            instanceTmp.transform.SetParent(parent.transform);
         }
         //l_instanceTmp.transform.localScale = Vector3.one;
-        return l_instanceTmp;
+        return instanceTmp;
     }
 
 
@@ -84,26 +84,26 @@ public class GameObjectManager :MonoBehaviour
     /// <summary>
     /// 从对象池取出一个对象，如果没有，则直接创建它
     /// </summary>
-    /// <param name="l_name">对象名</param>
-    /// <param name="l_parent">要创建到的父节点</param>
+    /// <param name="name">对象名</param>
+    /// <param name="parent">要创建到的父节点</param>
     /// <returns>返回这个对象</returns>
-    public static GameObject CreatGameObjectByPool(string l_name,GameObject l_parent = null,bool isSetActive = true)
+    public static GameObject CreateGameObjectByPool(string name,GameObject parent = null,bool isSetActive = true)
     {
-        if (IsExist(l_name))
+        if (IsExist(name))
         {
-            GameObject go = s_objectPool[l_name][0];
-            s_objectPool[l_name].RemoveAt(0);
+            GameObject go = s_objectPool[name][0];
+            s_objectPool[name].RemoveAt(0);
 
             if(isSetActive)
                 go.SetActive(true);
 
-            if (l_parent == null)
+            if (parent == null)
             {
                 go.transform.SetParent(null);
             }
             else
             {
-                go.transform.SetParent(l_parent.transform);
+                go.transform.SetParent(parent.transform);
             }
 
             //go.transform.localScale = Vector3.one;
@@ -112,38 +112,35 @@ public class GameObjectManager :MonoBehaviour
         }
         else
         {
-            return CreatGameObject(l_name, l_parent);
+            return CreateGameObject(name, parent);
         }
     }
 
-    public static GameObject CreatGameObjectByPool(GameObject l_prefab, GameObject l_parent = null, bool isSetActive = true)
+    public static GameObject CreateGameObjectByPool(GameObject prefab, GameObject parent = null, bool isSetActive = true)
     {
-        if (IsExist(l_prefab.name))
+        if (IsExist(prefab.name))
         {
-            GameObject go = s_objectPool[l_prefab.name][0];
-            s_objectPool[l_prefab.name].RemoveAt(0);
+            GameObject go = s_objectPool[prefab.name][0];
+            s_objectPool[prefab.name].RemoveAt(0);
 
             if (isSetActive)
                 go.SetActive(true);
 
-            if (l_parent == null)
+            if (parent == null)
             {
                 go.transform.SetParent(null);
             }
             else
             {
-                go.transform.SetParent(l_parent.transform);
+                go.transform.SetParent(parent.transform);
             }
-            //go.transform.localScale = Vector3.one;
             return go;
         }
         else
         {
-            return CreatGameObject(l_prefab, l_parent);
+            return CreateGameObject(prefab, parent);
         }
     }
-
-
 
     /// <summary>
     /// 将一个对象放入对象池
@@ -156,6 +153,11 @@ public class GameObjectManager :MonoBehaviour
         if (s_objectPool.ContainsKey(key) == false)
         {
             s_objectPool.Add(key, new List<GameObject>());
+        }
+
+        if(s_objectPool[key].Contains(obj))
+        {
+            throw new Exception("DestroyGameObjectByPool:-> Repeat Destroy GameObject !" + obj);
         }
 
         s_objectPool[key].Add(obj);
@@ -223,12 +225,32 @@ public class GameObjectManager :MonoBehaviour
 
             s_objectPool.Remove(name);
         }
-
-
     }
 
     #endregion
-    
+
+    #region 旧版本对象池 异步方法
+
+    public static void CreateGameObjectByPoolAsync(string name, CallBack<GameObject> callback, GameObject parent = null, bool isSetActive = true)
+    {
+        ResourceManager.LoadAsync(name, (status, res) =>
+        {
+            if(status.isDone)
+            {
+                try
+                {
+                    callback(CreateGameObjectByPool(name, parent, isSetActive));
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("CreateGameObjectByPoolAsync Exception: " + e.ToString());
+                }
+            }
+        });
+    }
+
+    #endregion
+
     #region 新版本对象池
 
     static Dictionary<string, List<PoolObject>> s_objectPool_new = new Dictionary<string, List<PoolObject>>();
@@ -239,7 +261,7 @@ public class GameObjectManager :MonoBehaviour
     /// <param name="gameObjectName">对象名</param>
     /// <param name="parent">对象的父节点,可空</param>
     /// <returns></returns>
-    static PoolObject CreatPoolObject(string gameObjectName, GameObject parent = null)
+    static PoolObject CreatePoolObject(string gameObjectName, GameObject parent = null)
     {
         GameObject go = ResourceManager.Load<GameObject>(gameObjectName);
 
@@ -276,9 +298,17 @@ public class GameObjectManager :MonoBehaviour
     /// <param name="gameObjectName"></param>
     public static void PutPoolObject(string gameObjectName)
     {
-        DestroyPoolObject(CreatPoolObject(gameObjectName));
+        DestroyPoolObject(CreatePoolObject(gameObjectName));
     }
 
+    /// <summary>
+    /// 预存入对象池
+    /// </summary>
+    /// <param name="name"></param>
+    public static void PutPoolGameOject(string name)
+    {
+        DestroyGameObjectByPool(CreateGameObjectByPool(name));
+    }
 
     public static bool IsExist_New(string objectName)
     {
@@ -323,41 +353,13 @@ public class GameObjectManager :MonoBehaviour
         }
         else
         {
-            //Debug.Log("GetPoolObject " + name);
-            po = CreatPoolObject(name, parent);
+            po = CreatePoolObject(name, parent);
         }
 
         po.OnFetch();
 
         return po;
     }
-
-    //public static GameObject CreatGameObjectByPool(GameObject l_prefab, GameObject l_parent = null, bool isSetActive = true)
-    //{
-    //    if (IsExist(l_prefab.name))
-    //    {
-    //        GameObject go = s_objectPool[l_prefab.name][0];
-    //        s_objectPool[l_prefab.name].RemoveAt(0);
-
-    //        if (isSetActive)
-    //            go.SetActive(true);
-
-    //        if (l_parent == null)
-    //        {
-    //            go.transform.SetParent(null);
-    //        }
-    //        else
-    //        {
-    //            go.transform.SetParent(l_parent.transform);
-    //        }
-    //        go.transform.localScale = Vector3.one;
-    //        return go;
-    //    }
-    //    else
-    //    {
-    //        return CreatGameObject(l_prefab, l_parent);
-    //    }
-    //}
 
     /// <summary>
     /// 将一个对象放入对象池
@@ -370,6 +372,11 @@ public class GameObjectManager :MonoBehaviour
         if (s_objectPool_new.ContainsKey(key) == false)
         {
             s_objectPool_new.Add(key, new List<PoolObject>());
+        }
+
+        if (s_objectPool_new[key].Contains(obj))
+        {
+            throw new Exception("DestroyPoolObject:-> Repeat Destroy GameObject !" + obj);
         }
 
         s_objectPool_new[key].Add(obj);
@@ -451,6 +458,25 @@ public class GameObjectManager :MonoBehaviour
             objList.Clear();
             s_objectPool_new.Remove(name);
         }
+    }
+
+    #endregion
+
+    #region 新版本对象池 异步方法
+
+    public static void CreatePoolObjectAsync(string name, CallBack<PoolObject> callback, GameObject parent = null)
+    {
+        ResourceManager.LoadAsync(name, (status,res) =>
+        {
+            try
+            {
+                callback(CreatePoolObject(name, parent));
+            }
+            catch(Exception e)
+            {
+                Debug.LogError("CreatePoolObjectAsync Exception: " + e.ToString());
+            }
+        });
     }
 
     #endregion

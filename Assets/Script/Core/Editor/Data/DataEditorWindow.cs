@@ -7,11 +7,13 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using FrameWork;
+
 public class DataEditorWindow : EditorWindow
 {
     UILayerManager m_UILayerManager;
 
-    [MenuItem("Window/数据编辑器", priority = 500)]
+    [MenuItem("Window/数据编辑器", priority = 501)]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(DataEditorWindow));
@@ -25,7 +27,7 @@ public class DataEditorWindow : EditorWindow
 
     void OnEnable()
     {
-        ConvertUtf8();
+        //ConvertUtf8();
 
         m_currentSelectIndex = 0;
         EditorGUIStyleData.Init();
@@ -44,7 +46,7 @@ public class DataEditorWindow : EditorWindow
     {
         if (!Application.isPlaying)
         {
-            ConvertUtf8();
+            //ConvertUtf8();
 
             FindAllDataName();
 
@@ -73,7 +75,7 @@ public class DataEditorWindow : EditorWindow
 
         GenerateAllDataClassGUI();
 
-        CleanCatchGUI();
+        CleanCacheGUI();
 
         EditorGUILayout.EndVertical();
     }
@@ -128,7 +130,7 @@ public class DataEditorWindow : EditorWindow
                     DataTable data = new DataTable();
                     data.TableKeys.Add(mainKey);
 
-                    DataManager.SaveData(dataName, data);
+                    SaveData(dataName, data);
                     AssetDatabase.Refresh();
 
                     LoadData(dataName);
@@ -171,11 +173,11 @@ public class DataEditorWindow : EditorWindow
         }
     }
 
-    void CleanCatchGUI()
+    void CleanCacheGUI()
     {
         if (GUILayout.Button("清除缓存"))
         {
-            DataManager.CleanCatch();
+            DataManager.CleanCache();
         }
     }
 
@@ -252,7 +254,7 @@ public class DataEditorWindow : EditorWindow
             }
             else if (dict.ContainsKey(mianKey))
             {
-                EditorGUILayout.LabelField("重复的主键！", EditorGUIStyleData.s_WarnMessageLabel);
+                EditorGUILayout.LabelField("重复的主键！", EditorGUIStyleData.WarnMessageLabel);
             }
 
             EditorGUILayout.Space();
@@ -430,7 +432,7 @@ public class DataEditorWindow : EditorWindow
         }
         catch(Exception e)
         {
-            EditorGUILayout.TextArea(e.ToString(),EditorGUIStyleData.s_ErrorMessageLabel);
+            EditorGUILayout.TextArea(e.ToString(),EditorGUIStyleData.ErrorMessageLabel);
         }
 
         return data;
@@ -611,7 +613,7 @@ public class DataEditorWindow : EditorWindow
             if (m_currentData.TableKeys.Contains(m_newFieldName))
             {
                 isShowButton = false;
-                EditorGUILayout.TextField("字段名不能重复！",EditorGUIStyleData.s_WarnMessageLabel);
+                EditorGUILayout.TextField("字段名不能重复！",EditorGUIStyleData.WarnMessageLabel);
             }
 
             m_newFieldDefaultValue = EditorUtilGUI.FieldGUI_Type(m_newAddType, EditorTool.GetAllEnumType()[m_newEnumTypeIndex], m_newFieldDefaultValue, "默认值");
@@ -669,7 +671,7 @@ public class DataEditorWindow : EditorWindow
     {
         if (GUILayout.Button("保存"))
         {
-            DataManager.SaveData(m_currentDataName, m_currentData);
+            SaveData(m_currentDataName, m_currentData);
             AssetDatabase.Refresh();
             LoadData(m_currentDataName);
         }
@@ -861,7 +863,7 @@ public class DataEditorWindow : EditorWindow
 
         string SavePath = Application.dataPath + "/Script/DataClassGenerate/" + className + ".cs";
 
-        ResourceIOTool.WriteStringByFile(SavePath, content.ToString());
+        EditorUtil.WriteStringByFile(SavePath, content.ToString());
     }
 
     string OutPutFieldFunction(FieldType fileType,string enumType)
@@ -911,6 +913,67 @@ public class DataEditorWindow : EditorWindow
     }
 
     #endregion
+
+    #region 保存数据
+
+    public static bool GetIsExistDataEditor(string DataName)
+    {
+        return "" != ResourceIOTool.ReadStringByResource(
+                        PathTool.GetRelativelyPath(DataManager.c_directoryName,
+                                                    DataName,
+                                                    DataManager.c_expandName));
+    }
+
+    public static void SaveData(string ConfigName, DataTable data)
+    {
+        EditorUtil.WriteStringByFile(
+            PathTool.GetAbsolutePath(
+                ResLoadLocation.Resource,
+                PathTool.GetRelativelyPath(
+                    DataManager.c_directoryName,
+                    ConfigName,
+                    DataManager.c_expandName)),
+            DataTable.Serialize(data));
+
+        UnityEditor.AssetDatabase.Refresh();
+    }
+
+    /// <summary>
+    /// 读取编辑器数据
+    /// </summary>
+    /// <param name="ConfigName">数据名称</param>
+    public static Dictionary<string, object> GetEditorData(string dataName)
+    {
+        UnityEditor.AssetDatabase.Refresh();
+
+        string dataJson = ResourceIOTool.ReadStringByFile(PathTool.GetEditorPath(DataManager.c_directoryName, dataName, DataManager.c_expandName));
+
+        if (dataJson == "")
+        {
+            Debug.Log(dataName + " dont find!");
+            return new Dictionary<string, object>();
+        }
+        else
+        {
+            return Json.Deserialize(dataJson) as Dictionary<string, object>;
+        }
+    }
+
+    /// <summary>
+    /// 保存编辑器数据
+    /// </summary>
+    /// <param name="ConfigName">数据名称</param>
+    /// <param name="data">数据表</param>
+    public static void SaveEditorData(string ConfigName, Dictionary<string, object> data)
+    {
+        string configDataJson = Json.Serialize(data);
+
+        EditorUtil.WriteStringByFile(PathTool.GetEditorPath(DataManager.c_directoryName, ConfigName, DataManager.c_expandName), configDataJson);
+
+        UnityEditor.AssetDatabase.Refresh();
+    }
+
+#endregion
 }
 
 

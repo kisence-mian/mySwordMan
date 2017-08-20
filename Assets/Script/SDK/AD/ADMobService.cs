@@ -12,7 +12,7 @@ public class ADMobService : ADInterface
     public string BannerAdUnitId = "unused";
     public string InterstitialUnitId = "unused";
 
-    public override void LoadAD(ADType adType)
+    public override void LoadAD(ADType adType, string tag = "")
     {
         if (adType == ADType.Banner)
         {
@@ -24,7 +24,7 @@ public class ADMobService : ADInterface
         }
     }
 
-    public override void PlayAD(ADType adType)
+    public override void PlayAD(ADType adType, string tag = "")
     {
         if (adType == ADType.Banner)
         {
@@ -36,7 +36,7 @@ public class ADMobService : ADInterface
         }
     }
 
-    public override void CloseAD(ADType adType)
+    public override void CloseAD(ADType adType, string tag = "")
     {
         if (adType == ADType.Banner)
         {
