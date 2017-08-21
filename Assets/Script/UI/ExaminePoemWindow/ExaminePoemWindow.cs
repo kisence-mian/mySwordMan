@@ -90,6 +90,8 @@ public class ExaminePoemWindow : UIWindowBase
 
     void OnClickFavoriteSwitch(InputUIOnClickEvent e)
     {
+        UpdateFavoriteSwitch();
+
         if (FavoritesService.GetIsFavorites(s_poemData.m_key))
         {
             FavoritesService.RemoveFavoite(s_poemData.m_key);
@@ -98,8 +100,6 @@ public class ExaminePoemWindow : UIWindowBase
         {
             FavoritesService.AddFavorites(s_poemData.m_key);
         }
-
-        UpdateFavoriteSwitch();
     }
 
     void UpdateFavoriteSwitch()

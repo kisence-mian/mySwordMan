@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--此处package值应该填入你游戏工程的包名-->
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kiscence.hundredPoemHit"
+	android:installLocation="preferExternal">
+	
+	<!-- 添加DataEye需要申请的权限  start -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission> 
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission> 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission> 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+	<!-- 添加DataEye需要申请的权限  end -->
+    
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true"/>
+
+    <application
+		android:icon="@drawable/app_icon"
+        android:label="@string/app_name"
+        android:debuggable="true">
+		
+		<!-- 添加DataEye需要配置的Meta start -->
+        <!-- DC_APPID 是一组32位的代码，可以在g.dataeye.com创建游戏后获得. -->
+        <!-- “YOUR_APPID”的部分要按照实际情况设置，一定要记得替换哦 -->
+		<meta-data android:value= "6647D8743AF49EA37F8A6FA99DDCC60A" android:name="DC_APPID"/>
+		
+		<!-- DC_CHANNEL对应于您的发布渠道，不同渠道需要做相应的修改 -->
+        <!-- “YOUR_CHANNEL_ID”的部分要按照实际情况设置，一定要记得替换哦 -->
+        <meta-data android:value="GooGlePlay" android:name="DC_CHANNEL"/>
+		<!-- 添加DataEye需要配置的Meta end -->
+		
+        <activity android:label="@string/app_name" 
+		android:name="com.unity3d.player.UnityPlayerNativeActivity" 
+		android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|fontScale">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+            <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="false" />
+        </activity>
+		
+    </application>
+</manifest>

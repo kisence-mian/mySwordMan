@@ -59,8 +59,8 @@ public class DCAgent : MonoBehaviour
 			return;
 		}
 //		DCAgent.setUploadInterval(90);
-		DCAgent.setReportMode(DCReportMode.DC_DEFAULT);
-
+//		DCAgent.setReportMode(DCReportMode.DC_AFTER_LOGIN);
+//		DCAgent.setDebugMode(true);
 #if UNITY_EDITOR
 #elif UNITY_ANDROID
 		//if you want set appID and channelId through code, you can use function initConfig
